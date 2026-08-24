@@ -1,6 +1,6 @@
 # 🌸 Hướng dẫn TM Translate
 
-> Dành cho **TM Translate v3.5.5.17_beta**.
+> Dành cho **TM Translate v3.5.5.18_beta**.
 >
 > 🌐 Dịch trang · 📚 Thư viện · ✏️ Edit Name · 📷 OCR · 🔊 TTS
 
@@ -132,14 +132,17 @@ Name Riêng luôn được ưu tiên trước các bộ Chung đã chọn.
 
 1. Mở truyện → **BN** → **Phân tích Name**.
 2. Chọn phạm vi chương, độ dài Name, tần suất tối thiểu và loại cần tìm.
-3. Giữ **TexSmart** để dùng nhanh; có thể bật thêm **IBM** nếu muốn đối chiếu.
+3. Chọn engine:
+   - **LAC Local:** riêng tư, chạy trên máy; lần đầu tải model khoảng 29 MB.
+   - **TexSmart:** engine online mặc định, tiện để dùng nhanh hoặc đối chiếu.
+   - **IBM:** engine online dự phòng, đôi lúc dịch vụ cũ không phản hồi.
 4. Bấm **Bắt đầu phân tích** và chờ thanh tiến độ.
 5. Lọc danh sách, sửa hoặc chọn gợi ý Dịch máy/Hán-Việt rồi bấm **Thêm Name**.
 6. Trở lại trang BN, kiểm tra lần cuối và bấm **Lưu & áp dụng**.
 
 Mặc định script quét 50 chương đầu, tìm Name dài 2–5 ký tự xuất hiện ít nhất 5 lần và bỏ qua Name đã có. Có thể đổi các số này khi truyện dùng tên dài hoặc Name ít lặp lại.
 
-> 🔐 TexSmart và IBM là engine online nên nội dung chương đã chọn sẽ được gửi tới dịch vụ đó. LAC vẫn được liệt kê để giống flow vBook nhưng đang tắt vì bản gốc cần model native Android, không chạy trực tiếp trong userscript.
+> 🔐 **LAC Local** không gửi nội dung ra ngoài. Model được cache riêng trên từng domain bằng IndexedDB; có thể bấm **Xóa model LAC** ngay trong popup. TexSmart và IBM là engine online nên chỉ bật khi bạn chấp nhận gửi các chương đã chọn tới dịch vụ đó.
 
 ### 📤 Xuất file
 
@@ -246,6 +249,12 @@ Lần chuyển đổi đầu sẽ nén dữ liệu cũ; không đóng tab giữa
 Nếu delay đã thấp hơn 800 ms, xuất RAW dùng tối thiểu 800 ms giữa hai request. Khi request lỗi, script tăng thời gian chờ dần tới giới hạn; sau khi server ổn định, nhịp gửi trở về mức xuất bình thường.
 
 ## 10. 📝 Thay đổi gần đây
+
+### ✨ v3.5.5.18_beta
+
+- Thêm **LAC Local** chạy đúng model vBook ngay trên thiết bị, nhận Nhân danh/Địa danh/Tổ chức mà không gửi nội dung ra ngoài.
+- Model tải khoảng 29 MB ở lần đầu, được kiểm tra an toàn và cache theo domain; có nút xóa model khi không cần.
+- Phân tích chạy nền bằng Worker, vẫn có tiến độ và có thể bấm Dừng; TexSmart/IBM tiếp tục dùng độc lập hoặc kết hợp.
 
 ### ✨ v3.5.5.17_beta
 

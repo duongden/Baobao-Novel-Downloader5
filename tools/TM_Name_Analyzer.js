@@ -10,14 +10,14 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
     'use strict';
 
-    const VERSION = '1.0.0';
+    const VERSION = '1.1.0';
     const TYPES = Object.freeze({
         PER: 'Nhân danh',
         LOC: 'Địa danh',
         ORG: 'Tổ chức'
     });
     const ENGINES = Object.freeze({
-        lac: Object.freeze({ id: 'lac', label: 'LAC', available: false, local: true }),
+        lac: Object.freeze({ id: 'lac', label: 'LAC Local', available: true, local: true }),
         texsmart: Object.freeze({ id: 'texsmart', label: 'TexSmart', available: true, local: false }),
         ibm: Object.freeze({ id: 'ibm', label: 'IBM', available: true, local: false })
     });
@@ -285,10 +285,13 @@
             })).filter(chapter => chapter.text);
         const engines = Array.from(new Set((options.engines || ['texsmart'])
             .map(value => String(value || '').toLowerCase())
-            .filter(engine => ENGINES[engine]?.available)));
+            .filter(engine => ENGINES[engine]?.available)
+            .filter(engine => engine !== 'lac' || typeof options.localAnalyze === 'function')));
         if (!chapters.length) return { results: [], warnings: [], stats: { requests: 0, completed: 0 } };
         if (!engines.length) throw new Error('Chưa chọn engine NER dùng được trên web.');
-        if (typeof options.request !== 'function') throw new Error('Thiếu hàm gửi request NER.');
+        if (engines.some(engine => !ENGINES[engine].local) && typeof options.request !== 'function') {
+            throw new Error('Thiếu hàm gửi request NER.');
+        }
 
         const tasks = [];
         const corpusParts = [];
@@ -308,14 +311,27 @@
         let lastRequestAt = 0;
         for (const task of tasks) {
             throwIfAborted(options.signal);
-            const elapsed = Date.now() - lastRequestAt;
-            if (lastRequestAt && elapsed < requestGapMs) await wait(requestGapMs - elapsed, options.signal);
-            const adapter = getAdapter(task.engine);
-            const spec = adapter.makeRequest(task.text);
-            lastRequestAt = Date.now();
             try {
-                const response = await requestWithRetry(options.request, spec, options.signal, retryCount);
-                allEntities.push(...adapter.parse(response));
+                if (task.engine === 'lac') {
+                    const response = await options.localAnalyze(task.text, {
+                        signal: options.signal,
+                        onProgress: progress => options.onEngineProgress?.({
+                            ...progress,
+                            chapterIndex: task.chapter.index,
+                            chapterTitle: task.chapter.title,
+                            engine: task.engine
+                        })
+                    });
+                    allEntities.push(...parseLacOutput(response));
+                } else {
+                    const elapsed = Date.now() - lastRequestAt;
+                    if (lastRequestAt && elapsed < requestGapMs) await wait(requestGapMs - elapsed, options.signal);
+                    const adapter = getAdapter(task.engine);
+                    const spec = adapter.makeRequest(task.text);
+                    lastRequestAt = Date.now();
+                    const response = await requestWithRetry(options.request, spec, options.signal, retryCount);
+                    allEntities.push(...adapter.parse(response));
+                }
             } catch (error) {
                 if (error?.name === 'AbortError') throw error;
                 const current = warningMap.get(task.engine) || { engine: task.engine, count: 0, message: '' };
