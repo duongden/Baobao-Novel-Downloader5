@@ -1,6 +1,6 @@
 # 🌸 Hướng dẫn TM Translate
 
-> Dành cho **TM Translate v3.5.5.16_beta**.
+> Dành cho **TM Translate v3.5.5.17_beta**.
 >
 > 🌐 Dịch trang · 📚 Thư viện · ✏️ Edit Name · 📷 OCR · 🔊 TTS
 
@@ -124,8 +124,22 @@ Bấm **BN** trong trang Thông tin hoặc Reader để:
 - Chọn một hay nhiều Bộ Name Chung.
 - Thêm, sửa, xóa Name Riêng.
 - Nhập file, nhập text hoặc xuất JSON/TXT.
+- Phân tích Name từ nội dung truyện RAW Trung.
 
 Name Riêng luôn được ưu tiên trước các bộ Chung đã chọn.
+
+#### ✨ Phân tích Name tự động
+
+1. Mở truyện → **BN** → **Phân tích Name**.
+2. Chọn phạm vi chương, độ dài Name, tần suất tối thiểu và loại cần tìm.
+3. Giữ **TexSmart** để dùng nhanh; có thể bật thêm **IBM** nếu muốn đối chiếu.
+4. Bấm **Bắt đầu phân tích** và chờ thanh tiến độ.
+5. Lọc danh sách, sửa hoặc chọn gợi ý Dịch máy/Hán-Việt rồi bấm **Thêm Name**.
+6. Trở lại trang BN, kiểm tra lần cuối và bấm **Lưu & áp dụng**.
+
+Mặc định script quét 50 chương đầu, tìm Name dài 2–5 ký tự xuất hiện ít nhất 5 lần và bỏ qua Name đã có. Có thể đổi các số này khi truyện dùng tên dài hoặc Name ít lặp lại.
+
+> 🔐 TexSmart và IBM là engine online nên nội dung chương đã chọn sẽ được gửi tới dịch vụ đó. LAC vẫn được liệt kê để giống flow vBook nhưng đang tắt vì bản gốc cần model native Android, không chạy trực tiếp trong userscript.
 
 ### 📤 Xuất file
 
@@ -232,6 +246,12 @@ Lần chuyển đổi đầu sẽ nén dữ liệu cũ; không đóng tab giữa
 Nếu delay đã thấp hơn 800 ms, xuất RAW dùng tối thiểu 800 ms giữa hai request. Khi request lỗi, script tăng thời gian chờ dần tới giới hạn; sau khi server ổn định, nhịp gửi trở về mức xuất bình thường.
 
 ## 10. 📝 Thay đổi gần đây
+
+### ✨ v3.5.5.17_beta
+
+- Thêm **Phân tích Name** cho từng truyện trong BN, với phạm vi chương, độ dài, tần suất và bộ lọc Nhân danh/Địa danh/Tổ chức.
+- Hỗ trợ TexSmart/IBM, gợi ý Dịch máy + Hán-Việt và màn hình duyệt trước khi thêm vào Name Riêng.
+- Có tiến độ, nút dừng và giao diện phù hợp điện thoại; lõi NER được tách thành file thư viện riêng.
 
 ### ✨ v3.5.5.16_beta
 

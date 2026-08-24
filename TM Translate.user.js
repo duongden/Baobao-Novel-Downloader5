@@ -2,7 +2,7 @@
 // @name         TM Translate
 // @author       QuocBao
 // @namespace    http://tampermonkey.net/
-// @version      3.5.5.16_beta
+// @version      3.5.5.17_beta
 // @description  Dịch trang, quản lý name-sets, sửa tên, Thư viện đọc offline, OCR và TTS.
 // @icon         data:image/png;base64,AAABAAEAQEAAAAEAIAAoQgAAFgAAACgAAABAAAAAgAAAAAEAIAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAA+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNf9BjDb/QYw2/0GMNv9BjDb/QYw2/0GMNv9BjDb/QYw2/0GMNv9BjDb/QYw2/0GMNv9BjDb/QIs1/z+LNP8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z+KNP81hCn/L4Ek/zCCJf8wgiX/MIIl/zCCJf8wgiX/MIIl/zCCJf8wgiX/MIIk/zCCJP8xgiX/MoMm/zWFKv86hy7/Pooz/0GMNv9BjDb/P4s0/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNf83hiz/gbJ6/7HQrf+py6T/qsum/6rLpv+qy6b/qsum/6rLpv+qy6b/qsum/6jKo/+fxZr/kLuJ/36xd/9oo1//UJVH/zyJMf8xgiX/MoIm/zqIL/9BjDb/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9AizX/M4Mo/8DZvP///////P38//////////////////////////////////////////////////////////////////X59f/b6dr/tNGw/4CyeP9Ok0T/M4Mn/zSEKP8/izT/QYw2/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs1/zOEKP+71rj///////n8+f/8/fz//P38//z9/P/8/fz//P38//z9/P/8/fz//P38//z9/P/8/fz//f79//7//v//////////////////////8/jz/7zWuf9wqGj/OIYt/zOEKP9AizX/P4s0/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz//////////////////v79//3+/f/9/v3//f79//7+/v/+/v7//v/+/////////////v/+//3+/f/8/fz//f79/////////////////9Pk0f9yqWr/M4Mo/zmHLv9BjDb/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38///////////////////////////////////////////////////////9/v3//P38//z9/P/9/v3////////////+//7//P38//3+/f///////////8DYvP9Nk0P/MoMn/0GMNv8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P/////////////////h7N//1+fV/9vp2f/e69z/5/Dl//P48v/9/v3///////////////////////7//v/8/fz//v7+/////////////f79//3+/P//////7/Xu/3Wrbv8wgiT/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////Yp9Z/zODJ/89iTP/PYoy/0ONOP9Mk0L/WptR/3Gpaf+Qu4n/ttKy/+Ds3v/9/v3////////////9/vz//v7+/////////////P38//7+/v//////lL6O/zGCJv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////2ShXP82hSv/QIs1/z6KM/88iTH/Oogv/zeGLP80hCj/MYIl/zKDJv8+ijP/Yp9Z/6THn//s8+v///////7+/f/9/v3////////////+/v3//P38//////+awpX/MYIl/0GMNv8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////9koVz/NoUr/0CLNf8+ijP/P4o0/z+LNP8/izX/QIs1/0GMNv9BjDb/Pooz/zaFK/8wgST/Ro88/5nBk//1+fT///////z9/P////////////7//v/8/fz//////4a2gP8xgiX/QYw2/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////ZKFb/zaFKv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9AizX/QYw3/zyJMf8vgSP/VZhL/9Hjzv///////P38/////////////v7+///////6/Pr/YJ9Y/zaFKv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////2ShW/82hSr/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8/ijT/Qow3/zeGLP85hy7/udW2///////8/fz////////////9/v3//////9Pk0P87iDD/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////9koVv/NoUq/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9BjDb/PYky/zWEKf+/2Lv///////39/P////////////z9/P//////hrV//zGCJf9BjDb/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////ZKFb/zaFKv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNf87iTD/QIs1/93q2////////f79///////+/v3//////93q2/8/ijT/PYoy/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////2ShW/82hSr/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QYw2/zOEKP9ppGH///////7//v////////////3+/f//////dqxv/zODJ/9AjDb/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////9koVv/NoUq/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9BjDb/MYIm/7jUtP///////f38///////8/fz//////7nUtf8ygyf/QYw2/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////ZKFb/zaFKv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs1/zaFKv9koVz//////////////////v7+///////p8uj/RY47/zyJMf8/ijT/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////2ShW/82hSr/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8/ijT/O4gw/9ro1////////f79///////+//7//////2aiXv81hSr/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////9koVv/NoUq/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QYw2/zCCJP+oyqP///////z9/P///////P38//////+JuIP/MYIl/0GMNv8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////ZKFb/zaFKv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0GMNv8ygyb/gbJ6///////9/vz///////z9/P//////qMqj/zGCJf9BjDb/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////2ShW/82hSr/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9AizX/NYUq/2ejX////////v/+///////8/fz//////7zWuf8zgyf/QIw2/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////9koVv/NoUq/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/P4s1/ziGLP9am1D/+/37///////+//7//f79///////K38f/NoUq/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////ZKFb/zaFKv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z+LNP85hy7/U5dJ//j7+P///////v/+//3+/f//////0+TR/zmHLf8/izT/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////2ShW/82hSr/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8/izT/OYcu/1OWSf/3+vf///////7//v/9/v3//////9bm1P86hy7/P4o0/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////9koVv/NoUq/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/P4s0/ziGLf9XmU7/+vz6///////+//7//f79///////R487/OIYs/z+LNP8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////ZKFb/zaFKv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNf82hSv/YqBa//////////////////3+/f//////xtzD/zWEKf9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////2ShW/82hSr/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9BjDb/M4Mn/3itcf///////f79///////8/fz//////7bSsv8ygyb/QYw2/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////9koVv/NoUq/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QYw2/zCCJP+bwpX///////z9/P///////P38//////+dw5f/MIIk/0GMNv8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////ZKFb/zaFKv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNf81hSr/yd7F///////9/v3///////3+/f//////fK90/zKDJ/9BjDb/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////2ShW/82hSr/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z+LNP85hy7/UZZI//b69v///////v/+//7//v//////+vz6/1eZTf84hi3/P4s0/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////9koVv/NoUq/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9CjDf/MIIk/5W/j////////P38///////9/v3//////9Xl0/86hy//P4o0/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////ZKFb/zaFKv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8/izT/O4gw/0ePPP/r8ur///////7+/v///////P38//////+XwJH/MIIl/0GMNv8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////2ShW/82hSr/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Qow3/y+BI/+tzaj///////39/P///////v/+///////2+fX/VZdL/zmHLf8/izT/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////9koVv/NoUq/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8/ijT/Qo04/y2AIf+Cs3v///////3+/f////////////z9/P//////sM+r/zKCJv9BjDb/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////ZKFb/zaFKv9AizX/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9BjDb/Pooz/y2AIf99sHb//P38///////+//7///////7+/v//////8/fy/1KWSf85hy7/P4s0/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////2ShW/82hSr/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/P4o0/0GMNv9AizX/M4Mn/zuIMP+gxZr//v/+//7+/v/+//7////////////8/fv//////4y5hf8xgiX/QYw2/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////9koVv/NoUq/0CLNf8+ijP/Pooz/z6KM/8+ijP/P4o0/0CLNf9BjDb/QYw2/zyJMf8ygyb/N4Yr/3Oqa//b6dn///////3+/P/+//7////////////7/fv//////7nUtf80hCn/QIs1/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz/////////////////Z6Je/zmHLv9DjTj/QYw2/0GMNv9AizX/Pooz/zuIMP82hSv/MYIl/zKDJ/9Gjzz/frF3/9Hjzv////////////3+/f/+//7////////////7/fv//////8zgyf89iTL/PIkx/z+LNP8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38/////////////////1maUP8nfBv/MoMn/zGCJf8ygyb/NYQp/zuIMP9JkT//YZ9Z/4e2gf+51LX/7PPr/////////////f79//3+/f////////////7+/f/8/fz//////8fdxP8/ijT/O4gv/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+917r///////z9/P////////////////+71bf/psmh/6vMpv+uzqn/t9Oz/8jdxf/a6dj/8PXv//7//v/////////////////9/v3//f79/////////////v/+//z9/P/+//7//////6rLpf84hi3/O4gw/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNv8zgyj/vde6///////8/fz///////////////////////////////////////////////////////////////7//P38//z9/P/+/v7////////////+/v7//P38//7+/v//////6/Pq/3mucv8xgiX/Pooz/0CLNf8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9Aizb/M4Mo/73Xuv///////P38//////////////////3+/P/8/fz//P38//z9/P/8/fz//f79//3+/f/+/v7//////////////////v7+//z9/P/9/v3////////////4+/f/qMqj/0ePPf8ygyb/QYw2/z+KNP8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/QIs2/zODKP+81rj///////v8+v/9/v3//f79//3+/f/9/v3//f79//3+/f/9/v3//f79//3+/f/9/vz//P38//z9/P/9/v3////////////+//7//////+vz6v+myaH/VZhL/zCCJP87iDD/QYw2/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/0CLNf8zgyj/wNi8///////8/fz///////////////////////////////////////////////////////////////////////3+/f/l7+P/t9Oz/3uvdP9Gjzv/MIIl/ziHLf9BjDb/P4s0/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/9AizX/NYQp/6HGnP/l7+T/2ejX/9vp2f/b6dn/2+nZ/9vp2f/b6dn/2+nZ/9vp2f/a6Nj/1OXS/8jdxf+10rH/ncSY/36xd/9enVX/Qow3/zKCJv8ygyb/PIkx/0GMNv8/izT/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/87iDD/PIgx/zyIMf88iDH/PIgx/zyIMf88iDH/PIgx/zyIMf88iTH/O4gw/ziGLf81hCn/MYIm/zCCJP8ygyb/N4Yr/z2JMv9BjDb/QYw2/z+KNP8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/P4o0/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8/izT/QIs1/0GMNv9BjDb/QYw2/0CLNf8+ijT/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/Pooz/z6KM/8+ijP/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 // @downloadURL  https://raw.githubusercontent.com/BaoBao666888/Novel-Downloader5/main/TM%20Translate.user.js
@@ -40,6 +40,7 @@
 // @connect      *.zmdcdn.me
 // @connect      *
 // @require      https://raw.githubusercontent.com/BaoBao666888/Novel-Downloader5/main/translate/zh_to_vi/translateZhToVi.js
+// @require      https://raw.githubusercontent.com/BaoBao666888/Novel-Downloader5/main/tools/TM_Name_Analyzer.js?v=20260824
 // @require      https://raw.githubusercontent.com/BaoBao666888/Novel-Downloader5/main/tools/TTS_Reader_Core.user.js?v=20260629
 // @require      https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js
 // @require      https://unpkg.com/@oovz/esearch-ocr/dist/eSearchOCR.umd.js
@@ -573,6 +574,16 @@
         showHelpButton: true,
         readerPrefetchPercent: 50,
         libraryBackupIntervalHours: 6,
+        libraryNameAnalyzer: {
+            minLength: 2,
+            maxLength: 5,
+            minFrequency: 5,
+            types: ['PER', 'LOC', 'ORG'],
+            engines: ['texsmart'],
+            skipExisting: true,
+            useMachineSuggestion: true,
+            useHanVietSuggestion: true
+        },
         readerMode: 'vertical', // single | vertical
         readerFullscreen: false,
         readerStyle: {
@@ -620,6 +631,10 @@
         }
         merged.simplifiedStyle = { ...DEFAULT_CONFIG.simplifiedStyle, ...(c.simplifiedStyle || {}) };
         merged.readerStyle = { ...DEFAULT_CONFIG.readerStyle, ...(c.readerStyle || {}) };
+        merged.libraryNameAnalyzer = {
+            ...DEFAULT_CONFIG.libraryNameAnalyzer,
+            ...(c.libraryNameAnalyzer || {})
+        };
         {
             const backupHours = Number(merged.libraryBackupIntervalHours);
             merged.libraryBackupIntervalHours = Number.isFinite(backupHours)
@@ -915,7 +930,7 @@
     let translatedBodyClone = null;
 
     /* ================== VERSION ================== */
-    const CURRENT_VERSION = '3.5.5.16_beta';
+    const CURRENT_VERSION = '3.5.5.17_beta';
     const TM_VERSION_KEY = 'tm_translate_version';
     const TTS_STORAGE_KEY = 'twd_tts_reader_settings_v1';
     const TTS_DEFAULT_SETTINGS = {
@@ -1545,6 +1560,54 @@
         .tm-name-manager-preview { min-height: 140px; max-height: 260px; overflow: auto; border: 1px solid var(--tm-border-color); border-radius: 8px; padding: 8px; background: #fafafa; }
         .tm-name-manager-common { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 8px 0 14px; }
         .tm-name-manager-common label { display: inline-flex; align-items: center; gap: 6px; }
+        .tm-name-analyzer-launch {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            margin: 0 0 14px; padding: 11px 12px; border: 1px solid #bfdbfe; border-radius: 10px;
+            background: linear-gradient(135deg, #eff6ff, #f5f3ff); color: #1e3a8a;
+        }
+        .tm-name-analyzer-launch-copy { min-width: 0; font-size: 12px; line-height: 1.45; }
+        .tm-name-analyzer-launch-copy b { display: block; margin-bottom: 2px; font-size: 14px; }
+        #tm-lib-name-analyzer .tm-modal-box { width: min(980px, calc(100vw - 24px)); height: min(88vh, 850px); }
+        #tm-lib-name-analyzer .tm-modal-content { flex: 1 1 auto; min-height: 0; }
+        .tm-name-analyzer-intro { margin: 0 0 14px; color: #64748b; font-size: 13px; line-height: 1.5; }
+        .tm-name-analyzer-config { display: grid; gap: 14px; }
+        .tm-name-analyzer-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .tm-name-analyzer-field { min-width: 0; padding: 10px; border: 1px solid #e2e8f0; border-radius: 9px; background: #f8fafc; }
+        .tm-name-analyzer-field .tm-input { margin-bottom: 0; }
+        .tm-name-analyzer-checks { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+        .tm-name-analyzer-checks label { display: inline-flex; align-items: center; gap: 7px; min-height: 30px; }
+        .tm-name-analyzer-checks input { width: 17px; height: 17px; margin: 0; accent-color: var(--tm-primary); }
+        .tm-name-analyzer-engine {
+            display: grid !important; grid-template-columns: auto minmax(0, 1fr); align-items: start !important;
+            min-width: 170px; padding: 9px 10px; border: 1px solid #dbe4f0; border-radius: 9px; background: #fff;
+        }
+        .tm-name-analyzer-engine small { display: block; color: #64748b; font-size: 11px; line-height: 1.35; }
+        .tm-name-analyzer-engine.is-unavailable { opacity: .62; }
+        .tm-name-analyzer-warning { padding: 9px 11px; border: 1px solid #fde68a; border-radius: 9px; background: #fffbeb; color: #854d0e; font-size: 12px; }
+        .tm-name-analyzer-progress { display: grid; gap: 7px; margin-top: 14px; padding: 11px; border: 1px solid #bfdbfe; border-radius: 9px; background: #eff6ff; }
+        .tm-name-analyzer-config[hidden], .tm-name-analyzer-progress[hidden], .tm-name-analyzer-results[hidden] { display: none !important; }
+        .tm-name-analyzer-progress-track { height: 8px; overflow: hidden; border-radius: 999px; background: #dbeafe; }
+        .tm-name-analyzer-progress-bar { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #2563eb, #8b5cf6); transition: width .18s ease; }
+        .tm-name-analyzer-result-tools {
+            position: sticky; top: -20px; z-index: 2; display: grid; grid-template-columns: minmax(180px, 1fr) auto auto;
+            gap: 8px; margin: -4px -4px 10px; padding: 8px 4px; background: var(--tm-white);
+        }
+        .tm-name-analyzer-result-tools .tm-input { margin: 0; }
+        .tm-name-analyzer-result-list { display: grid; gap: 8px; }
+        .tm-name-analyzer-result {
+            display: grid; grid-template-columns: auto minmax(120px, .75fr) minmax(200px, 1.25fr);
+            gap: 10px; align-items: center; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff;
+        }
+        .tm-name-analyzer-result.is-hidden { display: none; }
+        .tm-name-analyzer-select { width: 18px; height: 18px; margin: 0; accent-color: var(--tm-primary); }
+        .tm-name-analyzer-word { min-width: 0; }
+        .tm-name-analyzer-word strong { display: block; overflow-wrap: anywhere; font-size: 17px; }
+        .tm-name-analyzer-meta { color: #64748b; font-size: 11px; line-height: 1.4; }
+        .tm-name-analyzer-value { min-width: 0; }
+        .tm-name-analyzer-value .tm-input { margin: 0; }
+        .tm-name-analyzer-suggestions { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+        .tm-name-analyzer-suggestion { max-width: 100%; padding: 3px 7px; border: 1px solid #bfdbfe; border-radius: 999px; background: #eff6ff; color: #1d4ed8; cursor: pointer; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .tm-name-analyzer-empty { padding: 28px 14px; border: 1px dashed #cbd5e1; border-radius: 10px; text-align: center; color: #64748b; }
         .tm-split-preview {
             min-height: 120px; max-height: 280px; overflow: auto; white-space: pre-wrap; font: 12px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
             border: 1px solid var(--tm-border-color); border-radius: 8px; padding: 9px; background: #f8fafc;
@@ -1620,17 +1683,20 @@
             .tm-book-info-actions .tm-btn { flex: 1 1 120px; min-height: 40px; }
             .tm-book-info-toc { grid-template-columns: 1fr; }
             .tm-name-manager-row { grid-template-columns: 1fr; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; }
-            #tm-lib-edit-modal, #tm-lib-name-manager, #tm-lib-import-modal { padding: 0; align-items: stretch; justify-content: stretch; }
+            #tm-lib-edit-modal, #tm-lib-name-manager, #tm-lib-name-analyzer, #tm-lib-import-modal { padding: 0; align-items: stretch; justify-content: stretch; }
             #tm-lib-edit-modal .tm-modal-box,
             #tm-lib-name-manager .tm-modal-box,
+            #tm-lib-name-analyzer .tm-modal-box,
             #tm-lib-import-modal .tm-modal-box {
                 width: 100vw !important; max-width: 100vw; height: 100vh; height: 100dvh; max-height: 100dvh; border-radius: 0;
             }
             #tm-lib-edit-modal .tm-modal-header,
             #tm-lib-name-manager .tm-modal-header,
+            #tm-lib-name-analyzer .tm-modal-header,
             #tm-lib-import-modal .tm-modal-header { padding: max(10px, env(safe-area-inset-top)) 12px 10px; }
             #tm-lib-edit-modal .tm-modal-header h3,
             #tm-lib-name-manager .tm-modal-header h3,
+            #tm-lib-name-analyzer .tm-modal-header h3,
             #tm-lib-import-modal .tm-modal-header h3,
             #tm-lib-export-modal .tm-modal-header h3 {
                 flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
@@ -1638,20 +1704,31 @@
             }
             #tm-lib-edit-modal .tm-modal-header .tm-btn,
             #tm-lib-name-manager .tm-modal-header .tm-btn,
+            #tm-lib-name-analyzer .tm-modal-header .tm-btn,
             #tm-lib-import-modal .tm-modal-header .tm-btn,
             #tm-lib-export-modal .tm-modal-header .tm-btn {
                 flex: 0 0 auto; min-width: 40px; min-height: 40px; padding: 6px 10px; font-size: 18px;
             }
             #tm-lib-edit-modal .tm-modal-content,
             #tm-lib-name-manager .tm-modal-content,
+            #tm-lib-name-analyzer .tm-modal-content,
             #tm-lib-import-modal .tm-modal-content { padding: 12px; }
             #tm-lib-edit-modal .tm-row, #tm-lib-import-modal .tm-row { flex-direction: column; gap: 8px; }
             #tm-lib-edit-modal .tm-col, #tm-lib-import-modal .tm-col { flex: 1 1 auto !important; width: 100%; min-width: 0; }
             #tm-lib-edit-modal .tm-modal-footer,
             #tm-lib-name-manager .tm-modal-footer,
+            #tm-lib-name-analyzer .tm-modal-footer,
             #tm-lib-import-modal .tm-modal-footer { padding-bottom: max(9px, env(safe-area-inset-bottom)); }
             #tm-lib-edit-modal .tm-modal-footer .tm-btn,
-            #tm-lib-name-manager .tm-modal-footer .tm-btn { flex: 1 1 0; min-height: 44px; }
+            #tm-lib-name-manager .tm-modal-footer .tm-btn,
+            #tm-lib-name-analyzer .tm-modal-footer .tm-btn { flex: 1 1 0; min-height: 44px; }
+            .tm-name-analyzer-launch { align-items: stretch; flex-direction: column; }
+            .tm-name-analyzer-launch .tm-btn { width: 100%; min-height: 40px; }
+            .tm-name-analyzer-grid { grid-template-columns: 1fr; }
+            .tm-name-analyzer-result-tools { top: -12px; grid-template-columns: minmax(0, 1fr) auto; margin-top: -4px; }
+            .tm-name-analyzer-result-tools .tm-name-analyzer-result-count { grid-column: 1 / -1; }
+            .tm-name-analyzer-result { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+            .tm-name-analyzer-value { grid-column: 2; }
             .tm-chapter-editor { grid-template-columns: 1fr; min-height: 0; }
             .tm-chapter-editor-list { max-height: 190px; border-right: 0; border-bottom: 1px solid var(--tm-border-color); }
             .tm-chapter-editor-main { min-height: 390px; padding: 10px; }
@@ -14871,6 +14948,490 @@ self.onmessage = event => {
         return Object.entries(nameSet || {}).map(([key, value]) => `${key}=${value}`).join('\n');
     }
 
+    function libGetNameAnalyzerApi() {
+        const api = globalThis.TMNameAnalyzer;
+        if (!api || typeof api.analyze !== 'function') {
+            throw new Error('Thư viện TM Name Analyzer chưa tải được. Hãy cập nhật lại userscript hoặc kiểm tra @require.');
+        }
+        return api;
+    }
+
+    function libNameAnalyzerRequest(spec, { signal } = {}) {
+        return new Promise((resolve, reject) => {
+            let settled = false;
+            let request = null;
+            const finish = (callback, value) => {
+                if (settled) return;
+                settled = true;
+                signal?.removeEventListener?.('abort', abort);
+                callback(value);
+            };
+            const abort = () => {
+                try { request?.abort?.(); } catch (_) { }
+                const error = new Error('Đã dừng phân tích.');
+                error.name = 'AbortError';
+                finish(reject, error);
+            };
+            if (signal?.aborted) {
+                abort();
+                return;
+            }
+            signal?.addEventListener?.('abort', abort, { once: true });
+            request = GM_xmlhttpRequest({
+                method: spec.method || 'POST',
+                url: spec.url,
+                headers: spec.headers || {},
+                data: spec.body,
+                timeout: Math.max(5000, Number(spec.timeout) || 30000),
+                onload: response => {
+                    if (response.status < 200 || response.status >= 300) {
+                        finish(reject, new Error(`HTTP ${response.status}`));
+                        return;
+                    }
+                    finish(resolve, response.responseText || response.response || '');
+                },
+                onerror: () => finish(reject, new Error('Lỗi mạng khi gọi engine NER.')),
+                ontimeout: () => finish(reject, new Error('Engine NER phản hồi quá lâu.')),
+                onabort: () => {
+                    const error = new Error('Đã dừng phân tích.');
+                    error.name = 'AbortError';
+                    finish(reject, error);
+                }
+            });
+        });
+    }
+
+    async function libBuildNameAnalyzerSuggestions(results, options = {}) {
+        const words = (results || []).map(item => item.word);
+        const suggestions = words.map(() => ({ hv: '', machine: '' }));
+        const signal = options.signal;
+        const throwIfAborted = () => {
+            if (!signal?.aborted) return;
+            const error = new Error('Đã dừng phân tích.');
+            error.name = 'AbortError';
+            throw error;
+        };
+        if (options.useHanViet !== false && words.length) {
+            options.onProgress?.('Đang tạo gợi ý Hán-Việt...');
+            const map = await loadHanVietJson();
+            for (let index = 0; index < words.length; index++) {
+                throwIfAborted();
+                try {
+                    suggestions[index].hv = await buildHanVietMixedName(words[index], map);
+                } catch (_) { }
+                if ((index + 1) % 80 === 0) await new Promise(resolve => setTimeout(resolve, 0));
+            }
+        }
+        let machineWarning = '';
+        if (options.useMachine !== false && words.length) {
+            options.onProgress?.(`Đang dịch gợi ý bằng ${config.serverProvider === 'dichnhanh' ? 'DichNhanh' : 'DichNgay'}...`);
+            try {
+                const batches = splitIntoBatches(words, Math.max(500, Number(config.maxCharsPerRequest) || 4500));
+                let offset = 0;
+                for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+                    throwIfAborted();
+                    const translated = await requestServerTranslation(batches[batchIndex]);
+                    throwIfAborted();
+                    batches[batchIndex].forEach((_word, itemIndex) => {
+                        const value = String(translated?.[itemIndex] || '').trim();
+                        suggestions[offset + itemIndex].machine = value ? titleCaseVietnameseWords(value) : '';
+                    });
+                    offset += batches[batchIndex].length;
+                    options.onProgress?.(`Đang dịch gợi ý ${offset}/${words.length}...`);
+                    if (batchIndex < batches.length - 1) await sleep(Math.max(0, Number(config.delayMs) || 0));
+                }
+            } catch (error) {
+                if (error?.name === 'AbortError') throw error;
+                machineWarning = `Không lấy được gợi ý dịch máy: ${error?.message || error}`;
+            }
+        }
+        throwIfAborted();
+        return { suggestions, warning: machineWarning };
+    }
+
+    async function openLibraryNameAnalyzer(book, options = {}) {
+        removeElementById('tm-lib-name-analyzer');
+        if (!book?.bookId) return showNotification('Không tìm thấy truyện để phân tích.');
+        if (book.langSource !== 'zh') {
+            showNotification('Phân tích Name chỉ dùng cho truyện RAW Trung.');
+            return;
+        }
+        let analyzer;
+        try {
+            analyzer = libGetNameAnalyzerApi();
+        } catch (error) {
+            showNotification(error.message);
+            return;
+        }
+        const chapters = await libGetChaptersByBook(book.bookId);
+        if (!chapters.length) return showNotification('Truyện chưa có chương để phân tích.');
+        const saved = {
+            ...DEFAULT_CONFIG.libraryNameAnalyzer,
+            ...(config.libraryNameAnalyzer || {})
+        };
+        const savedTypes = new Set(Array.isArray(saved.types) ? saved.types : DEFAULT_CONFIG.libraryNameAnalyzer.types);
+        const savedEngines = new Set(Array.isArray(saved.engines) ? saved.engines : DEFAULT_CONFIG.libraryNameAnalyzer.engines);
+        const wrapper = document.createElement('div');
+        wrapper.id = 'tm-lib-name-analyzer';
+        wrapper.className = 'tm-modal-wrapper';
+        wrapper.style.zIndex = '2147483678';
+        wrapper.innerHTML = `
+            <div class="tm-modal-backdrop"></div>
+            <div class="tm-modal-box">
+                <div class="tm-modal-header">
+                    <h3>✨ Phân tích Name — ${escapeHtml(book.title || 'Untitled')}</h3>
+                    <button class="tm-btn" id="tm-na-close" type="button">×</button>
+                </div>
+                <div class="tm-modal-content">
+                    <section id="tm-na-config" class="tm-name-analyzer-config">
+                        <p class="tm-name-analyzer-intro">Thiết lập theo flow NER của vBook. Kết quả chỉ được đưa vào bản nháp <b>Name Riêng</b> sau khi bạn kiểm tra và chọn.</p>
+                        <div class="tm-name-analyzer-grid">
+                            <div class="tm-name-analyzer-field">
+                                <label class="tm-label">Phạm vi chương</label>
+                                <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:7px;align-items:center;">
+                                    <input id="tm-na-chapter-start" class="tm-input" type="number" min="1" max="${chapters.length}" value="1">
+                                    <span>–</span>
+                                    <input id="tm-na-chapter-end" class="tm-input" type="number" min="1" max="${chapters.length}" value="${Math.min(50, chapters.length)}">
+                                </div>
+                            </div>
+                            <div class="tm-name-analyzer-field">
+                                <label class="tm-label">Độ dài Name (ký tự Hán)</label>
+                                <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:7px;align-items:center;">
+                                    <input id="tm-na-min-length" class="tm-input" type="number" min="1" max="20" value="${Math.max(1, Number(saved.minLength) || 2)}">
+                                    <span>–</span>
+                                    <input id="tm-na-max-length" class="tm-input" type="number" min="1" max="20" value="${Math.max(1, Number(saved.maxLength) || 5)}">
+                                </div>
+                            </div>
+                            <div class="tm-name-analyzer-field">
+                                <label class="tm-label" for="tm-na-frequency">Tần suất tối thiểu</label>
+                                <input id="tm-na-frequency" class="tm-input" type="number" min="1" max="9999" value="${Math.max(1, Number(saved.minFrequency) || 5)}">
+                            </div>
+                        </div>
+                        <div class="tm-name-analyzer-field">
+                            <label class="tm-label">Loại cần tìm</label>
+                            <div class="tm-name-analyzer-checks">
+                                ${Object.entries(analyzer.TYPES).map(([type, label]) => `<label><input type="checkbox" data-na-type="${type}" ${savedTypes.has(type) ? 'checked' : ''}> ${escapeHtml(label)}</label>`).join('')}
+                            </div>
+                        </div>
+                        <div class="tm-name-analyzer-field">
+                            <label class="tm-label">Engine phân tích</label>
+                            <div class="tm-name-analyzer-checks">
+                                <label class="tm-name-analyzer-engine is-unavailable" title="LAC của vBook cần model và thư viện native Android.">
+                                    <input type="checkbox" data-na-engine="lac" disabled>
+                                    <span><b>LAC (Off)</b><small>Engine local của vBook, chưa chạy được trong userscript.</small></span>
+                                </label>
+                                <label class="tm-name-analyzer-engine">
+                                    <input type="checkbox" data-na-engine="texsmart" ${savedEngines.has('texsmart') ? 'checked' : ''}>
+                                    <span><b>TexSmart (On)</b><small>NER online của Tencent; lựa chọn mặc định.</small></span>
+                                </label>
+                                <label class="tm-name-analyzer-engine">
+                                    <input type="checkbox" data-na-engine="ibm" ${savedEngines.has('ibm') ? 'checked' : ''}>
+                                    <span><b>IBM (On)</b><small>Engine dự phòng; API demo cũ có thể ngừng hoạt động.</small></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="tm-name-analyzer-field">
+                            <label class="tm-label">Gợi ý tiếng Việt</label>
+                            <div class="tm-name-analyzer-checks">
+                                <label><input id="tm-na-use-machine" type="checkbox" ${saved.useMachineSuggestion !== false ? 'checked' : ''}> Dịch máy hiện tại</label>
+                                <label><input id="tm-na-use-hv" type="checkbox" ${saved.useHanVietSuggestion !== false ? 'checked' : ''}> Hán-Việt</label>
+                                <label><input id="tm-na-skip-existing" type="checkbox" ${saved.skipExisting !== false ? 'checked' : ''}> Bỏ qua Name đã có</label>
+                            </div>
+                        </div>
+                        <div class="tm-name-analyzer-warning">⚠️ Nội dung các chương đã chọn sẽ được gửi tới engine online đang bật. LAC vẫn hiện để đúng flow vBook nhưng không giả lập vì bản gốc cần model native Android.</div>
+                    </section>
+                    <section id="tm-na-progress" class="tm-name-analyzer-progress" hidden>
+                        <div id="tm-na-progress-text">Đang chuẩn bị...</div>
+                        <div class="tm-name-analyzer-progress-track"><div id="tm-na-progress-bar" class="tm-name-analyzer-progress-bar"></div></div>
+                    </section>
+                    <section id="tm-na-results" class="tm-name-analyzer-results" hidden>
+                        <div class="tm-name-analyzer-result-tools">
+                            <input id="tm-na-search" class="tm-input" placeholder="Lọc tên Trung hoặc gợi ý Việt...">
+                            <select id="tm-na-result-type" class="tm-select" style="margin:0;">
+                                <option value="">Tất cả loại</option>
+                                ${Object.entries(analyzer.TYPES).map(([type, label]) => `<option value="${type}">${escapeHtml(label)}</option>`).join('')}
+                            </select>
+                            <button id="tm-na-toggle-visible" class="tm-btn" type="button">Bỏ chọn đang hiện</button>
+                            <div id="tm-na-result-count" class="tm-name-analyzer-result-count tm-library-muted"></div>
+                        </div>
+                        <div id="tm-na-result-notice"></div>
+                        <div id="tm-na-result-list" class="tm-name-analyzer-result-list"></div>
+                    </section>
+                </div>
+                <div class="tm-modal-footer">
+                    <button id="tm-na-cancel" class="tm-btn" type="button">Hủy</button>
+                    <button id="tm-na-reset" class="tm-btn" type="button" hidden>Phân tích lại</button>
+                    <button id="tm-na-stop" class="tm-btn" type="button" style="color:#dc3545" hidden>Dừng</button>
+                    <button id="tm-na-start" class="tm-btn tm-btn-primary" type="button">Bắt đầu phân tích</button>
+                    <button id="tm-na-apply" class="tm-btn tm-btn-primary" type="button" hidden>Thêm vào Name Riêng</button>
+                </div>
+            </div>
+        `;
+        tmUIRoot.appendChild(wrapper);
+
+        const configSection = wrapper.querySelector('#tm-na-config');
+        const progressSection = wrapper.querySelector('#tm-na-progress');
+        const progressText = wrapper.querySelector('#tm-na-progress-text');
+        const progressBar = wrapper.querySelector('#tm-na-progress-bar');
+        const resultsSection = wrapper.querySelector('#tm-na-results');
+        const resultNotice = wrapper.querySelector('#tm-na-result-notice');
+        const resultList = wrapper.querySelector('#tm-na-result-list');
+        const resultCount = wrapper.querySelector('#tm-na-result-count');
+        const searchInput = wrapper.querySelector('#tm-na-search');
+        const typeSelect = wrapper.querySelector('#tm-na-result-type');
+        const startButton = wrapper.querySelector('#tm-na-start');
+        const stopButton = wrapper.querySelector('#tm-na-stop');
+        const resetButton = wrapper.querySelector('#tm-na-reset');
+        const applyButton = wrapper.querySelector('#tm-na-apply');
+        let resultItems = [];
+        let controller = null;
+        let running = false;
+        let applied = false;
+
+        const setProgress = (text, percent = null) => {
+            if (!wrapper.isConnected) return;
+            progressText.textContent = text;
+            if (Number.isFinite(percent)) progressBar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+        };
+        const readSettings = () => {
+            const start = Math.max(1, Math.min(chapters.length, parseInt(wrapper.querySelector('#tm-na-chapter-start').value, 10) || 1));
+            const end = Math.max(start, Math.min(chapters.length, parseInt(wrapper.querySelector('#tm-na-chapter-end').value, 10) || Math.min(50, chapters.length)));
+            const minLength = Math.max(1, Math.min(20, parseInt(wrapper.querySelector('#tm-na-min-length').value, 10) || 2));
+            const maxLength = Math.max(minLength, Math.min(20, parseInt(wrapper.querySelector('#tm-na-max-length').value, 10) || 5));
+            return {
+                start,
+                end,
+                minLength,
+                maxLength,
+                minFrequency: Math.max(1, Math.min(9999, parseInt(wrapper.querySelector('#tm-na-frequency').value, 10) || 5)),
+                types: Array.from(wrapper.querySelectorAll('[data-na-type]:checked')).map(input => input.dataset.naType),
+                engines: Array.from(wrapper.querySelectorAll('[data-na-engine]:checked:not(:disabled)')).map(input => input.dataset.naEngine),
+                skipExisting: wrapper.querySelector('#tm-na-skip-existing').checked,
+                useMachineSuggestion: wrapper.querySelector('#tm-na-use-machine').checked,
+                useHanVietSuggestion: wrapper.querySelector('#tm-na-use-hv').checked
+            };
+        };
+        const close = (force = false) => {
+            if (!force && running && !confirm('Đang phân tích Name. Dừng và đóng popup?')) return false;
+            if (!force && !running && resultItems.length && !applied && !confirm('Kết quả chưa được đưa vào Name Riêng. Đóng và bỏ kết quả?')) return false;
+            controller?.abort();
+            if (libCriticalTaskMessage.includes('phân tích Name')) libCriticalTaskMessage = '';
+            wrapper.remove();
+            return true;
+        };
+        const visibleResultIndexes = () => {
+            const query = String(searchInput.value || '').trim().toLocaleLowerCase('vi-VN');
+            const type = typeSelect.value;
+            const indexes = [];
+            resultItems.forEach((item, index) => {
+                const matchType = !type || item.type === type;
+                const haystack = `${item.word} ${item.value} ${item.suggestions.join(' ')}`.toLocaleLowerCase('vi-VN');
+                if (matchType && (!query || haystack.includes(query))) indexes.push(index);
+            });
+            return indexes;
+        };
+        const updateResultCount = () => {
+            const visible = new Set(visibleResultIndexes());
+            const selected = resultItems.filter(item => item.selected && String(item.value || '').trim()).length;
+            const selectedVisible = resultItems.filter((item, index) => visible.has(index) && item.selected).length;
+            resultCount.textContent = `Hiện ${visible.size}/${resultItems.length} · đã chọn ${selected}${visible.size !== resultItems.length ? ` (${selectedVisible} đang hiện)` : ''}`;
+            applyButton.textContent = `Thêm ${selected} Name`;
+            applyButton.disabled = selected === 0;
+        };
+        const filterResults = () => {
+            const visible = new Set(visibleResultIndexes());
+            resultList.querySelectorAll('[data-na-result-index]').forEach(row => {
+                row.classList.toggle('is-hidden', !visible.has(Number(row.dataset.naResultIndex)));
+            });
+            const visibleItems = resultItems.filter((_item, index) => visible.has(index));
+            const allSelected = visibleItems.length > 0 && visibleItems.every(item => item.selected);
+            wrapper.querySelector('#tm-na-toggle-visible').textContent = allSelected ? 'Bỏ chọn đang hiện' : 'Chọn hết đang hiện';
+            updateResultCount();
+        };
+        const renderResults = (warnings = []) => {
+            const warningText = warnings.filter(Boolean).join(' ');
+            resultNotice.innerHTML = warningText
+                ? `<div class="tm-name-analyzer-warning" style="margin-bottom:10px;">${escapeHtml(warningText)}</div>`
+                : '';
+            resultList.innerHTML = resultItems.length ? resultItems.map((item, index) => `
+                <div class="tm-name-analyzer-result" data-na-result-index="${index}">
+                    <input class="tm-name-analyzer-select" type="checkbox" data-na-select="${index}" ${item.selected ? 'checked' : ''} aria-label="Chọn ${escapeHtml(item.word)}">
+                    <div class="tm-name-analyzer-word">
+                        <strong>${escapeHtml(item.word)}</strong>
+                        <div class="tm-name-analyzer-meta">${escapeHtml(analyzer.TYPES[item.type] || item.type)} · ${item.count} lần · ${item.engines.map(engine => analyzer.ENGINES[engine]?.label || engine).join(' + ')}</div>
+                    </div>
+                    <div class="tm-name-analyzer-value">
+                        <input class="tm-input" data-na-value="${index}" value="${escapeHtml(item.value)}" placeholder="Nhập tên tiếng Việt">
+                        <div class="tm-name-analyzer-suggestions">${item.suggestions.map(value => `<button class="tm-name-analyzer-suggestion" type="button" data-na-suggestion="${index}" data-value="${escapeHtml(value)}" title="Dùng gợi ý này">${escapeHtml(value)}</button>`).join('')}</div>
+                    </div>
+                </div>
+            `).join('') : '<div class="tm-name-analyzer-empty">Không tìm thấy Name phù hợp. Thử giảm tần suất, đổi phạm vi hoặc bật thêm loại NER.</div>';
+            filterResults();
+        };
+        const setMode = mode => {
+            const isConfig = mode === 'config';
+            const isRunning = mode === 'running';
+            const isResults = mode === 'results';
+            configSection.hidden = !isConfig;
+            progressSection.hidden = !isRunning;
+            resultsSection.hidden = !isResults;
+            startButton.hidden = !isConfig;
+            stopButton.hidden = !isRunning;
+            resetButton.hidden = !isResults;
+            applyButton.hidden = !isResults;
+        };
+
+        startButton.onclick = async () => {
+            const settings = readSettings();
+            if (!settings.types.length) return showNotification('Hãy chọn ít nhất một loại Name.');
+            if (!settings.engines.length) return showNotification('Hãy chọn TexSmart hoặc IBM.');
+            config.libraryNameAnalyzer = {
+                minLength: settings.minLength,
+                maxLength: settings.maxLength,
+                minFrequency: settings.minFrequency,
+                types: settings.types,
+                engines: settings.engines,
+                skipExisting: settings.skipExisting,
+                useMachineSuggestion: settings.useMachineSuggestion,
+                useHanVietSuggestion: settings.useHanVietSuggestion
+            };
+            saveConfig(config);
+            controller = new AbortController();
+            running = true;
+            resultItems = [];
+            applied = false;
+            libCriticalTaskMessage = 'TM Translate đang phân tích Name. Đóng tab lúc này sẽ làm mất tiến trình.';
+            setMode('running');
+            setProgress('Đang đọc nội dung chương...', 0);
+            try {
+                const selectedChapters = [];
+                const range = chapters.slice(settings.start - 1, settings.end);
+                for (let index = 0; index < range.length; index++) {
+                    if (controller.signal.aborted) {
+                        const error = new Error('Đã dừng phân tích.');
+                        error.name = 'AbortError';
+                        throw error;
+                    }
+                    const { rawText } = await libGetNormalizedRawChapterContent(range[index]);
+                    if (rawText) selectedChapters.push({ title: range[index].title, text: rawText });
+                    setProgress(`Đang đọc chương ${index + 1}/${range.length}...`, ((index + 1) / Math.max(1, range.length)) * 8);
+                    if ((index + 1) % 4 === 0) await new Promise(resolve => setTimeout(resolve, 0));
+                }
+                const analysis = await analyzer.analyze({
+                    chapters: selectedChapters,
+                    engines: settings.engines,
+                    types: settings.types,
+                    minLength: settings.minLength,
+                    maxLength: settings.maxLength,
+                    minFrequency: settings.minFrequency,
+                    skipExisting: settings.skipExisting,
+                    existingNames: Array.isArray(options.existingNames) ? options.existingNames : [],
+                    maxCharsPerRequest: 6000,
+                    requestGapMs: 350,
+                    retryCount: 1,
+                    request: libNameAnalyzerRequest,
+                    signal: controller.signal,
+                    onProgress: progress => {
+                        const percent = 8 + (progress.completed / Math.max(1, progress.total)) * 72;
+                        const engineLabel = analyzer.ENGINES[progress.engine]?.label || progress.engine;
+                        setProgress(`Đang quét ${progress.completed}/${progress.total} · ${engineLabel} · ${progress.chapterTitle || `chương ${progress.chapterIndex + 1}`}`, percent);
+                    }
+                });
+                const suggestionResult = await libBuildNameAnalyzerSuggestions(analysis.results, {
+                    useMachine: settings.useMachineSuggestion,
+                    useHanViet: settings.useHanVietSuggestion,
+                    signal: controller.signal,
+                    onProgress: message => setProgress(message, 86)
+                });
+                resultItems = analysis.results.map((item, index) => {
+                    const values = [
+                        suggestionResult.suggestions[index]?.machine,
+                        suggestionResult.suggestions[index]?.hv
+                    ].map(value => String(value || '').trim()).filter(Boolean);
+                    const unique = Array.from(new Set(values));
+                    return { ...item, suggestions: unique, value: unique[0] || '', selected: unique.length > 0 };
+                });
+                const warnings = analysis.warnings.map(item => `${analyzer.ENGINES[item.engine]?.label || item.engine} lỗi ${item.count} request: ${item.message}.`);
+                if (suggestionResult.warning) warnings.push(suggestionResult.warning);
+                renderResults(warnings);
+                setMode('results');
+            } catch (error) {
+                if (error?.name === 'AbortError') {
+                    showNotification('Đã dừng phân tích Name.');
+                    if (wrapper.isConnected) setMode('config');
+                } else {
+                    console.error('[tm-translate] Phân tích Name thất bại:', error);
+                    showNotification(`Phân tích Name thất bại: ${error?.message || error}`);
+                    if (wrapper.isConnected) setMode('config');
+                }
+            } finally {
+                running = false;
+                if (libCriticalTaskMessage.includes('phân tích Name')) libCriticalTaskMessage = '';
+            }
+        };
+        stopButton.onclick = () => controller?.abort();
+        resetButton.onclick = () => {
+            if (resultItems.length && !confirm('Bỏ kết quả hiện tại để chỉnh cấu hình và phân tích lại?')) return;
+            resultItems = [];
+            setMode('config');
+        };
+        searchInput.addEventListener('input', filterResults);
+        typeSelect.addEventListener('change', filterResults);
+        wrapper.querySelector('#tm-na-toggle-visible').onclick = () => {
+            const indexes = visibleResultIndexes();
+            const shouldSelect = !indexes.length || indexes.some(index => !resultItems[index].selected);
+            indexes.forEach(index => { resultItems[index].selected = shouldSelect; });
+            resultList.querySelectorAll('[data-na-select]').forEach(input => {
+                const index = Number(input.dataset.naSelect);
+                if (indexes.includes(index)) input.checked = shouldSelect;
+            });
+            filterResults();
+        };
+        resultList.addEventListener('input', event => {
+            const select = event.target.closest('[data-na-select]');
+            const input = event.target.closest('[data-na-value]');
+            if (select) resultItems[Number(select.dataset.naSelect)].selected = select.checked;
+            if (input) {
+                const item = resultItems[Number(input.dataset.naValue)];
+                item.value = input.value;
+                if (input.value.trim()) {
+                    item.selected = true;
+                    resultList.querySelector(`[data-na-select="${input.dataset.naValue}"]`).checked = true;
+                }
+            }
+            updateResultCount();
+        });
+        resultList.addEventListener('click', event => {
+            const button = event.target.closest('[data-na-suggestion]');
+            if (!button) return;
+            const index = Number(button.dataset.naSuggestion);
+            const value = button.dataset.value || '';
+            resultItems[index].value = value;
+            resultItems[index].selected = !!value;
+            const input = resultList.querySelector(`[data-na-value="${index}"]`);
+            const checkbox = resultList.querySelector(`[data-na-select="${index}"]`);
+            if (input) input.value = value;
+            if (checkbox) checkbox.checked = !!value;
+            updateResultCount();
+        });
+        applyButton.onclick = () => {
+            const additions = {};
+            resultItems.forEach(item => {
+                const value = String(item.value || '').trim();
+                if (item.selected && item.word && value) additions[item.word] = value;
+            });
+            const count = Object.keys(additions).length;
+            if (!count) return showNotification('Chưa chọn Name có bản dịch để thêm.');
+            options.onApply?.(additions);
+            applied = true;
+            close(true);
+            showNotification(`Đã đưa ${count} Name vào bản nháp Name Riêng. Nhớ bấm Lưu & áp dụng.`);
+        };
+        wrapper.querySelector('#tm-na-close').onclick = () => close();
+        wrapper.querySelector('#tm-na-cancel').onclick = () => close();
+        setMode('config');
+    }
+
     async function openLibraryNameManager(bookId) {
         removeElementById('tm-lib-name-manager');
         config = loadConfig();
@@ -14897,6 +15458,10 @@ self.onmessage = event => {
                     <button class="tm-btn" id="tm-bn-close">×</button>
                 </div>
                 <div class="tm-modal-content">
+                    <div class="tm-name-analyzer-launch">
+                        <div class="tm-name-analyzer-launch-copy"><b>✨ Phân tích Name trong truyện</b>Quét chương bằng flow NER của vBook, xem/sửa kết quả rồi thêm vào Name Riêng.</div>
+                        <button id="tm-bn-analyze" class="tm-btn tm-btn-primary" type="button" ${book.langSource === 'zh' ? '' : 'disabled title="Chỉ dùng cho truyện RAW Trung"'}>Phân tích Name</button>
+                    </div>
                     <label class="tm-label">Bộ Name Chung áp dụng cho truyện</label>
                     <div class="tm-name-manager-common">${commonHtml}</div>
                     <p style="margin:0 0 12px;color:#64748b;font-size:12px;">Có thể chọn nhiều bộ. Nếu trùng cụm từ, Bộ Name Riêng bên dưới luôn được ưu tiên.</p>
@@ -14957,6 +15522,19 @@ self.onmessage = event => {
             dirty = true;
             render();
             showNotification(`Đã nhập ${Object.keys(parsed).length} cặp Name Riêng.`);
+        };
+
+        wrapper.querySelector('#tm-bn-analyze').onclick = () => {
+            const checkedCommon = Array.from(wrapper.querySelectorAll('input[data-common-name]:checked')).map(input => input.dataset.commonName);
+            const draftBook = { ...book, nameSetNames: checkedCommon, privateNameSet: { ...privateNames } };
+            openLibraryNameAnalyzer(book, {
+                existingNames: Object.keys(libGetEffectiveNameSet(draftBook, config)),
+                onApply(additions) {
+                    Object.assign(privateNames, additions);
+                    dirty = true;
+                    render();
+                }
+            });
         };
 
         wrapper.querySelector('#tm-bn-add').onclick = () => {
@@ -18004,7 +18582,7 @@ self.onmessage = event => {
 <div class="tm-welcome-title">🌸 Chào mừng đến với TM Translate 🌸</div>
 		<div class="tm-welcome-sub">TM Translate v${CURRENT_VERSION} • Dịch trang web Trung → Việt, quản lý Name-set, Thư viện đọc offline, OCR dịch ảnh và TTS</div>
 		<div class="tm-welcome-banner">
-		  <strong>✨ v${CURRENT_VERSION}:</strong> Dịch trang mobile giữ nguyên bố cục/link phức tạp và không còn tự hạ chữ hoa mà server đã trả đúng.
+		  <strong>✨ v${CURRENT_VERSION}:</strong> Thư viện có thể phân tích Nhân danh, Địa danh và Tổ chức rồi thêm kết quả đã duyệt vào Name Riêng.
 	</div>
 <div style="height:8px;"></div>
     `.trim();
@@ -18033,6 +18611,7 @@ self.onmessage = event => {
 - Tên tác giả Trung được phiên âm Hán Việt, viết hoa và tách đúng ranh giới chữ Latin/Trung.
 - Ô tìm kiếm mặc định bật toàn bộ phạm vi: tên truyện, tác giả raw, tác giả dịch, raw Trung và cache dịch.
 - **BN** cho phép chọn nhiều Bộ Name Chung và quản lý một Bộ Name Riêng cho từng truyện (nhập file/text, thêm, sửa, xóa, xuất). Name Riêng luôn ưu tiên hơn Name Chung; Edit Name trong Reader mặc định lưu vào Riêng nhưng có thể chọn một bộ Chung đang áp dụng. Tên truyện và văn án cũng dùng đúng tổ hợp BN này khi dịch.
+- Trong **BN → Phân tích Name**, chọn phạm vi chương, độ dài, tần suất, loại và engine theo flow vBook. Script quét ở nền có tiến độ; sau đó có thể lọc, sửa/chọn gợi ý Dịch máy hoặc Hán-Việt rồi đưa vào bản nháp Name Riêng. TexSmart dùng được mặc định; IBM là dự phòng, còn LAC chỉ hiển thị tương thích vì bản gốc cần model native Android.
 - **Sao lưu/Khôi phục** dùng file \`.tmbackup.jsonl\`: bấm **Sao lưu** để tải file backup, bấm **Khôi phục** để chọn file đó nhập lại. File gồm index thư viện, raw, cache dịch và ảnh bìa.
 - Trên phone, thanh nút Reader nằm trên một hàng cuộn ngang; vuốt sang trái/phải để mở các nút còn lại. Nút Fullscreen/Mục lục/RAW/DỊCH được đặt trước để thao tác đọc chính luôn dễ chạm.
 - Bôi đen text trong Reader sẽ hiện thanh **Phát / Sửa tên hoặc Thay thế từ / Xóa rác / Sao chép**. Trên mobile, menu copy/share mặc định của máy được ẩn trong Reader.
@@ -18070,6 +18649,11 @@ self.onmessage = event => {
     `.trim();
 
     const changelogMarkdown = `
+### ✨ v3.5.5.17_beta
+- Thêm **Phân tích Name** trong BN của từng truyện theo flow vBook: phạm vi chương, độ dài, tần suất, Nhân danh/Địa danh/Tổ chức, bỏ qua Name đã có và gợi ý Dịch máy + Hán-Việt.
+- Hỗ trợ TexSmart và IBM, gộp kết quả/tần suất/nguồn, cho lọc/sửa/chọn trước khi thêm vào Name Riêng; LAC được ghi rõ là engine native chưa chạy được trên web.
+- Tách lõi NER sang \`tools/TM_Name_Analyzer.js\`, có tiến độ, dừng an toàn và giao diện phone.
+
 ### ✨ v3.5.5.16_beta
 - Dịch trang mobile giữ nguyên ảnh, icon và các thẻ con bên trong link có bố cục; link thuần chữ dài không còn tràn ngang.
 - Giữ nguyên chữ hoa do DichNgay/server trả về, không còn đoán sai \`Troy\` thành \`troy\` sau dấu nháy.
@@ -18127,7 +18711,7 @@ self.onmessage = event => {
         const updateBanner = `
 	<div class="tm-update-banner">
 	  <div style="font-size:15px;font-weight:700;">🌈 TM Translate v${CURRENT_VERSION} đã sẵn sàng!</div>
-	  <div style="font-size:12px;color:#6a4f7a;">Có thể chọn kho Tampermonkey dùng chung hoặc IndexedDB/OPFS theo domain; mỗi lựa chọn đều hiển thị rõ giới hạn.</div>
+	  <div style="font-size:12px;color:#6a4f7a;">Mở BN của truyện RAW Trung để quét Name bằng TexSmart/IBM, duyệt gợi ý rồi thêm vào Name Riêng.</div>
 	</div>`.trim();
         openHelpModal([updateBanner, renderHelpMarkdown(changelogMarkdown)].join('\n'));
     }
