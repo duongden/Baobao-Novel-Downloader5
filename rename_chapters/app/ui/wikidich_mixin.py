@@ -2982,16 +2982,6 @@ class WikidichMixin:
             if not parsed_files or len(parsed_files) < 2:
                 messagebox.showinfo("Chưa đủ file", "Chọn ít nhất 2 file .txt trước khi tải.", parent=win)
                 return
-            warn = manual_upload_warning.get("value")
-            if warn and warn.get("has_warning"):
-                msg = warn.get("message") or "Có file không phải UTF-8 hoặc có ký tự 4-byte."
-                if not messagebox.askyesno(
-                    "Cảnh báo UTF-8/icon",
-                    f"{msg}\n\nVẫn tải các file này lên Wikidich?",
-                    parent=win,
-                ):
-                    _set_status("Đã hủy upload do cảnh báo UTF-8/icon.")
-                    return
             book_id = vol.get("book_id")
             volume_id = vol.get("volume_id")
             if not book_id:
@@ -3056,7 +3046,16 @@ class WikidichMixin:
                             warning_info=warning_snapshot,
                             wiki_chapters_before=count_before,
                         )
-                        messagebox.showinfo("Thành công", "Đã upload file lên Wikidich.", parent=win)
+                        if warning_snapshot.get("has_warning"):
+                            warning_message = warning_snapshot.get("message") or "Có file không phải UTF-8 hoặc có ký tự 4-byte."
+                            messagebox.showwarning(
+                                "Thành công (có cảnh báo)",
+                                "Đã upload file lên Wikidich và ghi cảnh báo vào Lịch sử Auto Update.\n\n"
+                                + warning_message,
+                                parent=win,
+                            )
+                        else:
+                            messagebox.showinfo("Thành công", "Đã upload file lên Wikidich.", parent=win)
                         self._wd_handle_uploaded_chapters(book, count_added)
                         _enable_actions()
                         if prefill_close_on_success and win.winfo_exists():
@@ -4373,7 +4372,9 @@ class WikidichMixin:
             self._wd_loading_site = getattr(self, "wd_site", "wikidich")
             try:
                 self._wd_set_progress("Đang chọn thư mục mới nhất...", 0, 1)
-                target_dir = self._wd_pick_linked_upload_dir(link_path)
+                # Auto Update riêng luôn dùng thư mục con mới nhất, độc lập với
+                # chế độ "Liên kết" mà user dùng cho nút Chọn tự động.
+                target_dir = self._wd_pick_latest_subdir(link_path)
                 payload = self._wd_prepare_linked_folder_upload_payload(book, target_dir)
                 if not payload.get("ok"):
                     msg = payload.get("error_message") or "Không chuẩn bị được file upload."
@@ -10785,11 +10786,12 @@ class WikidichMixin:
         if not book:
             messagebox.showinfo("Chưa chọn truyện", "Chọn một truyện có link Fanqie hoặc Liên kết thư mục trước.", parent=self)
             return
+        linked_folder = self._wd_get_linked_folder(book)
+        if linked_folder:
+            self._wd_auto_update_linked_folder(book)
+            return
         fanqie_link = self._wd_get_fanqie_link(book)
         if not fanqie_link:
-            if self._wd_get_linked_folder(book):
-                self._wd_auto_update_linked_folder(book)
-                return
             messagebox.showinfo("Không có nguồn", "Auto update cần link Fanqie hoặc Liên kết thư mục.", parent=self)
             return
         if self._wd_loading:
