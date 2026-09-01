@@ -751,14 +751,19 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
         if not book:
             raise api_error(http_status.NOT_FOUND, "NOT_FOUND", "Không tìm thấy truyện.")
         payload = handler._read_json_body()
-        if "content" not in payload:
-            raise api_error(http_status.BAD_REQUEST, "BAD_REQUEST", "Thiếu content để lưu raw.")
+        if "content" not in payload and "title_raw" not in payload:
+            raise api_error(http_status.BAD_REQUEST, "BAD_REQUEST", "Thiếu tiêu đề/nội dung để lưu raw.")
         raw_key = str(chapter.get("raw_key") or "").strip()
         if not raw_key:
             raise api_error(http_status.BAD_REQUEST, "BAD_REQUEST", "Chương này không có raw_key để lưu.")
         source_type = str(book.get("source_type") or "").strip().lower()
         is_comic = "comic" in source_type
-        content = _normalize_client_reader_text(payload.get("content") or "")
+        next_title = " ".join(
+            str(payload.get("title_raw") if "title_raw" in payload else chapter.get("title_raw") or "").replace("\r", "\n").split()
+        ).strip()
+        if not next_title:
+            raise api_error(http_status.BAD_REQUEST, "BAD_REQUEST", "Tiêu đề raw không được để trống.")
+        content = _normalize_client_reader_text(payload.get("content") if "content" in payload else (storage.read_cache(raw_key) or ""))
         if is_comic and deps.decode_comic_payload(content) is None:
             maybe_lines = [line.strip() for line in content.splitlines() if line.strip()]
             if maybe_lines and all(line.startswith("http://") or line.startswith("https://") for line in maybe_lines):
@@ -769,6 +774,12 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
             storage.update_chapter_word_count(chapter_id, len(comic_payload.get("images") or []))
         else:
             storage.update_chapter_word_count(chapter_id, len(content))
+        try:
+            title_result = storage.update_chapter_raw_title(chapter_id, next_title)
+        except ValueError as exc:
+            raise api_error(http_status.BAD_REQUEST, "BAD_REQUEST", str(exc)) from exc
+        if not title_result:
+            raise api_error(http_status.NOT_FOUND, "NOT_FOUND", "Không tìm thấy chương để lưu tiêu đề raw.")
         cleared = storage.clear_chapter_translated_cache(chapter_id)
         raw_state = storage.set_chapter_raw_edit_state(chapter_id, edited=True, source="manual")
         return {
@@ -777,6 +788,8 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
             "book_id": chapter["book_id"],
             "source_type": str(book.get("source_type") or ""),
             "remote_url": str(chapter.get("remote_url") or ""),
+            "title_raw": str(title_result.get("title_raw") or next_title),
+            "title_changed": bool(title_result.get("changed")),
             "raw_edited": bool(raw_state.get("edited")),
             "raw_edit_updated_at": str(raw_state.get("updated_at") or ""),
             **cleared,

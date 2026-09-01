@@ -353,6 +353,37 @@ def update_chapter_word_count(storage, chapter_id: str, word_count: int, *, utc_
         )
 
 
+def update_chapter_raw_title(storage, chapter_id: str, title_raw: str, *, utc_now_iso) -> dict[str, Any] | None:
+    cid = str(chapter_id or "").strip()
+    title = " ".join(str(title_raw or "").replace("\r", "\n").split()).strip()
+    if not cid:
+        return None
+    if not title:
+        raise ValueError("Tiêu đề raw không được để trống.")
+    now = utc_now_iso()
+    with storage._connect() as conn:
+        row = conn.execute(
+            "SELECT book_id, title_raw FROM chapters WHERE chapter_id = ? LIMIT 1",
+            (cid,),
+        ).fetchone()
+        if not row:
+            return None
+        changed = str(row["title_raw"] or "").strip() != title
+        if changed:
+            conn.execute(
+                "UPDATE chapters SET title_raw = ?, title_vi = NULL, updated_at = ? WHERE chapter_id = ?",
+                (title, now, cid),
+            )
+            storage.sync_chapter_search_texts(chapter_ids=[cid], conn=conn)
+        return {
+            "chapter_id": cid,
+            "book_id": str(row["book_id"] or ""),
+            "title_raw": title,
+            "changed": changed,
+            "updated_at": now if changed else "",
+        }
+
+
 def collect_vbook_image_cache_keys_for_chapters(
     storage,
     *,

@@ -4267,6 +4267,14 @@ class ReaderStorage:
             utc_now_iso=utc_now_iso,
         )
 
+    def update_chapter_raw_title(self, chapter_id: str, title_raw: str) -> dict[str, Any] | None:
+        return storage_book_mutation_support.update_chapter_raw_title(
+            self,
+            chapter_id,
+            title_raw,
+            utc_now_iso=utc_now_iso,
+        )
+
     def find_book(self, book_id: str) -> dict[str, Any] | None:
         return storage_library_support.find_book(self, book_id)
 

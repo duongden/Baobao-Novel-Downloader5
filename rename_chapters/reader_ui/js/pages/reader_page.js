@@ -252,6 +252,8 @@ const refs = {
   btnCloseRawEditor: document.getElementById("btn-close-raw-editor"),
   rawEditorForm: document.getElementById("raw-editor-form"),
   rawEditorHint: document.getElementById("raw-editor-hint"),
+  rawEditorTitleInputLabel: document.getElementById("raw-editor-title-input-label"),
+  rawEditorTitleInput: document.getElementById("raw-editor-title-input"),
   rawEditorInputLabel: document.getElementById("raw-editor-input-label"),
   rawEditorInput: document.getElementById("raw-editor-input"),
   rawEditorMeta: document.getElementById("raw-editor-meta"),
@@ -289,6 +291,7 @@ const state = {
   chapterRawEdited: false,
   chapterRawEditUpdatedAt: "",
   rawEditorChapterId: "",
+  rawEditorInitialTitle: "",
   rawEditorInitialText: "",
   flipPages: [],
   flipPageIndex: 0,
@@ -1788,6 +1791,7 @@ async function runComicOcrPrefetchQueue({ flowSeq, chapters, sourceLang, modelKe
 
 function resetRawEditorState() {
   state.rawEditorChapterId = "";
+  state.rawEditorInitialTitle = "";
   state.rawEditorInitialText = "";
   if (refs.rawEditorForm) refs.rawEditorForm.reset();
   if (refs.rawEditorMeta) refs.rawEditorMeta.textContent = "";
@@ -1834,11 +1838,13 @@ async function openRawEditor() {
   try {
     const data = await fetchRawEditorContent(state.chapterId);
     state.rawEditorChapterId = String((data && data.chapter_id) || state.chapterId || "").trim();
+    state.rawEditorInitialTitle = String((data && data.title_raw) || "").trim();
     state.rawEditorInitialText = String((data && data.content) || "");
     state.chapterSourceType = String((data && data.source_type) || state.chapterSourceType || "");
     state.chapterRemoteUrl = String((data && data.remote_url) || state.chapterRemoteUrl || "");
     state.chapterRawEdited = Boolean(data && data.raw_edited);
     state.chapterRawEditUpdatedAt = String((data && data.raw_edit_updated_at) || "");
+    if (refs.rawEditorTitleInput) refs.rawEditorTitleInput.value = state.rawEditorInitialTitle;
     if (refs.rawEditorInput) refs.rawEditorInput.value = state.rawEditorInitialText;
     syncRawEditorHint(data);
     if (refs.rawEditorDialog && !refs.rawEditorDialog.open) refs.rawEditorDialog.showModal();
@@ -1855,18 +1861,32 @@ async function saveRawEditor(event) {
   if (event) event.preventDefault();
   if (!state.rawEditorChapterId) return;
   const targetChapterId = state.rawEditorChapterId;
+  const nextTitle = String((refs.rawEditorTitleInput && refs.rawEditorTitleInput.value) || "").trim();
   const nextContent = String((refs.rawEditorInput && refs.rawEditorInput.value) || "");
+  if (!nextTitle) {
+    state.shell.showToast(state.shell.t("rawEditorTitleRequired"));
+    if (refs.rawEditorTitleInput) refs.rawEditorTitleInput.focus();
+    return;
+  }
   state.shell.showStatus(state.shell.t("statusSavingRawEditor"));
   try {
     const result = await state.shell.api(`/api/library/chapter/${encodeURIComponent(targetChapterId)}/raw`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: nextContent }),
+      body: JSON.stringify({ title_raw: nextTitle, content: nextContent }),
     });
     state.chapterSourceType = String((result && result.source_type) || state.chapterSourceType || "");
     state.chapterRemoteUrl = String((result && result.remote_url) || state.chapterRemoteUrl || "");
     state.chapterRawEdited = Boolean(result && result.raw_edited);
     state.chapterRawEditUpdatedAt = String((result && result.raw_edit_updated_at) || "");
+    const currentRow = Array.isArray(state.book && state.book.chapters)
+      ? state.book.chapters.find((row) => String((row && row.chapter_id) || "").trim() === String(targetChapterId || "").trim())
+      : null;
+    if (currentRow) {
+      currentRow.title_raw = String((result && result.title_raw) || nextTitle).trim();
+      currentRow.title_vi = "";
+      currentRow.title_display = currentRow.title_raw;
+    }
     const preserveRatio = currentChapterRatio();
     dropChapterCacheById(targetChapterId);
     closeRawEditor();
@@ -4714,6 +4734,9 @@ async function loadChapter({
       : null;
     if (currentRow) {
       currentRow.is_vip = Boolean(chapter && chapter.is_vip);
+      if (chapter && typeof chapter.title_raw === "string" && chapter.title_raw.trim()) {
+        currentRow.title_raw = chapter.title_raw;
+      }
       if (chapter && typeof chapter.title === "string" && chapter.title.trim()) {
         currentRow.title_display = chapter.title;
       }
@@ -8617,6 +8640,7 @@ async function init() {
   refs.btnOpenNameEditor.textContent = state.shell.t("bookPrivateNames");
   if (refs.rawEditorTitle) refs.rawEditorTitle.textContent = state.shell.t("rawEditorTitle");
   if (refs.btnCloseRawEditor) refs.btnCloseRawEditor.textContent = state.shell.t("close");
+  if (refs.rawEditorTitleInputLabel) refs.rawEditorTitleInputLabel.textContent = state.shell.t("rawEditorTitleInputLabel");
   if (refs.rawEditorInputLabel) refs.rawEditorInputLabel.textContent = state.shell.t("rawEditorInputLabel");
   if (refs.btnCancelRawEditor) refs.btnCancelRawEditor.textContent = state.shell.t("cancel");
   if (refs.btnSaveRawEditor) refs.btnSaveRawEditor.textContent = state.shell.t("save");
