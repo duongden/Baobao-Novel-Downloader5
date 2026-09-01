@@ -604,12 +604,19 @@ class WikidichMixin:
         links_frame = ttk.LabelFrame(detail_frame, text="Link bổ sung", padding=6)
         links_frame.grid(row=1, column=1, sticky="ew", padx=(10, 0), pady=(6, 0))
         links_frame.columnconfigure(0, weight=1)
-        self.wd_links_listbox = tk.Listbox(links_frame, height=2)
+        self.wd_links_listbox = tk.Listbox(links_frame, height=3)
         self.wd_links_listbox.grid(row=0, column=0, sticky="ew")
         self.wd_links_listbox.bind("<Double-Button-1>", self._wd_open_extra_link)
         self.wd_current_links = []
+        self.wd_manage_links_btn = ttk.Button(
+            links_frame,
+            text="Quản lý...",
+            command=self._wd_open_extra_links_manager,
+            state=tk.DISABLED,
+        )
+        self.wd_manage_links_btn.grid(row=0, column=1, sticky="ns", padx=(6, 0))
         origin_row = ttk.Frame(links_frame)
-        origin_row.grid(row=1, column=0, sticky="ew", pady=(6, 0))
+        origin_row.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(6, 0))
         origin_row.columnconfigure(1, weight=1)
         self.wd_manual_origin_var = tk.StringVar(value="")
         ttk.Label(origin_row, text="Web gốc:").grid(row=0, column=0, sticky="w")
@@ -822,7 +829,7 @@ class WikidichMixin:
             "wd_category_group_combo", "wd_category_search_var", "wd_category_search_entry",
             "wd_category_mode_var", "wd_category_listbox", "wd_selected_category_listbox",
             "wd_title_text", "wd_summary_text", "wd_collections_text", "wd_flags_text",
-            "wd_links_listbox", "wd_current_links", "wd_auto_pick_btn", "wd_open_link_btn",
+            "wd_links_listbox", "wd_current_links", "wd_manage_links_btn", "wd_auto_pick_btn", "wd_open_link_btn",
             "wd_download_btn", "wd_tree", "_wd_tree_index",
             "wd_author_entry", "wd_status_entry", "wd_updated_entry", "wd_chapters_entry",
             "wd_cover_label", "wd_detail_canvas", "wd_detail_scope_var", "wd_missing_only_var",
@@ -1938,16 +1945,20 @@ class WikidichMixin:
             ("ihuaben.com", self._wd_fetch_ihuaben_origin_status),
             ("qimao.com", self._wd_fetch_qimao_origin_status),
         ]
-        for domain, handler in source_handlers:
-            url = self._wd_find_link_with_domain(book, domain)
-            if not url:
+        handler_map = dict(source_handlers)
+        for domain, url in self._wd_iter_supported_extra_links(book, [item[0] for item in source_handlers]):
+            handler = handler_map.get(domain)
+            if not handler:
                 continue
             try:
                 if domain == "fanqienovel.com":
-                    return handler(url, proxies=proxies, headers=headers)
-                return handler(url, proxies=proxies)
+                    result = handler(url, proxies=proxies, headers=headers)
+                else:
+                    result = handler(url, proxies=proxies)
+                if result:
+                    return result
             except Exception:
-                return None
+                continue
         return None
 
     def _wd_apply_origin_status_info(self, book: dict, info: dict):
@@ -2316,6 +2327,9 @@ class WikidichMixin:
             self._wd_set_text_content(self.wd_collections_text, "")
             self._wd_set_text_content(self.wd_flags_text, "")
             self.wd_links_listbox.delete(0, tk.END)
+            self.wd_current_links = []
+            if hasattr(self, "wd_manage_links_btn"):
+                self.wd_manage_links_btn.config(state=tk.DISABLED)
             self.wd_info_vars['author'].set("")
             self.wd_info_vars['status'].set("")
             self.wd_info_vars['updated'].set("")
@@ -2371,10 +2385,12 @@ class WikidichMixin:
         self._wd_update_volume_names_panel(book)
         self._wd_update_fanqie_chapter_panel(book)
         self.wd_links_listbox.delete(0, tk.END)
-        self.wd_current_links = book.get('extra_links', [])
-        for link in self.wd_current_links:
+        self.wd_current_links = list(book.get('extra_links') or [])
+        for index, link in enumerate(self.wd_current_links, start=1):
             label = link.get('label') or link.get('url')
-            self.wd_links_listbox.insert(tk.END, label)
+            self.wd_links_listbox.insert(tk.END, f"{index}. {label}")
+        if hasattr(self, "wd_manage_links_btn"):
+            self.wd_manage_links_btn.config(state=tk.NORMAL if book.get("id") else tk.DISABLED)
         self._wd_display_cover(book.get('cover_url'))
         self._wd_update_update_button_state()
         self._wd_update_delete_button_state()
@@ -2504,6 +2520,276 @@ class WikidichMixin:
         url = (link.get('url') if isinstance(link, dict) else link) or ""
         self._wd_open_link(url)
 
+    def _wd_extra_link_key(self, link) -> str:
+        helper = getattr(wikidich_ext, "_additional_link_key", None)
+        if callable(helper):
+            return helper(link)
+        raw = link.get("url") if isinstance(link, dict) else link
+        return str(raw or "").strip().rstrip("/").lower()
+
+    def _wd_is_local_extra_link(self, link) -> bool:
+        helper = getattr(wikidich_ext, "_is_local_additional_link", None)
+        if callable(helper):
+            return bool(helper(link))
+        if not isinstance(link, dict):
+            return False
+        return bool(
+            str(link.get("source") or "").strip().lower() == "local"
+            or link.get("local_only") is True
+            or self._wd_is_manual_origin_link(link)
+        )
+
+    def _wd_commit_extra_links(self, book: dict, links: list, *, selected_index: Optional[int] = None):
+        if not isinstance(book, dict):
+            return
+        bid = str(book.get("id") or "").strip()
+        if not bid:
+            return
+        normalized = []
+        seen = set()
+        for raw in links or []:
+            item = dict(raw) if isinstance(raw, dict) else {"label": str(raw or ""), "url": str(raw or "")}
+            key = self._wd_extra_link_key(item)
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            normalized.append(item)
+
+        books = self.wikidich_data.get("books", {}) if isinstance(self.wikidich_data, dict) else {}
+        target = books.get(bid) if isinstance(books, dict) else None
+        if not isinstance(target, dict):
+            target = book
+        target["extra_links"] = list(normalized)
+        book["extra_links"] = list(normalized)
+        if isinstance(books, dict):
+            books[bid] = target
+        selected = getattr(self, "wd_selected_book", None)
+        if isinstance(selected, dict) and str(selected.get("id") or "") == bid:
+            selected["extra_links"] = list(normalized)
+            self.wd_current_links = list(normalized)
+            self.wd_links_listbox.delete(0, tk.END)
+            for index, item in enumerate(normalized, start=1):
+                label = item.get("label") or item.get("url") or ""
+                self.wd_links_listbox.insert(tk.END, f"{index}. {label}")
+            self._wd_update_manual_origin_ui(selected)
+        self._wd_save_cache()
+        self._wd_refresh_extra_links_manager(selected_index=selected_index)
+
+    def _wd_extra_links_manager_alive(self) -> bool:
+        try:
+            return bool(self._wd_extra_links_win) and bool(self._wd_extra_links_win.winfo_exists())
+        except Exception:
+            return False
+
+    def _wd_open_extra_links_manager(self):
+        book = getattr(self, "wd_selected_book", None)
+        if not isinstance(book, dict) or not book.get("id"):
+            messagebox.showinfo("Chưa chọn truyện", "Chọn một truyện trước.", parent=self)
+            return
+        if self._wd_extra_links_manager_alive():
+            self._wd_extra_links_book_id = str(book.get("id"))
+            self._wd_refresh_extra_links_manager()
+            self._wd_extra_links_win.lift()
+            return
+
+        win = tk.Toplevel(self)
+        self._apply_window_icon(win)
+        win.title("Quản lý link bổ sung")
+        win.geometry("900x430")
+        self._wd_extra_links_win = win
+        self._wd_extra_links_book_id = str(book.get("id"))
+        container = ttk.Frame(win, padding=10)
+        container.pack(fill="both", expand=True)
+        container.columnconfigure(0, weight=1)
+        container.rowconfigure(1, weight=1)
+        ttk.Label(
+            container,
+            text="Thứ tự từ trên xuống dưới cũng là thứ tự ưu tiên. Link server chỉ được di chuyển; link thêm từ máy này có thể xóa.",
+            wraplength=850,
+            justify="left",
+        ).grid(row=0, column=0, columnspan=2, sticky="w")
+        tree = ttk.Treeview(
+            container,
+            columns=("order", "label", "url", "source"),
+            show="headings",
+            selectmode="browse",
+        )
+        tree.heading("order", text="#")
+        tree.heading("label", text="Tên")
+        tree.heading("url", text="URL")
+        tree.heading("source", text="Nguồn")
+        tree.column("order", width=45, anchor="center", stretch=False)
+        tree.column("label", width=210, anchor="w")
+        tree.column("url", width=510, anchor="w")
+        tree.column("source", width=85, anchor="center", stretch=False)
+        tree.grid(row=1, column=0, sticky="nsew", pady=(8, 0))
+        scrollbar = ttk.Scrollbar(container, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.grid(row=1, column=1, sticky="ns", pady=(8, 0))
+        tree.bind("<Double-1>", lambda _event: self._wd_open_selected_extra_link())
+        tree.bind("<<TreeviewSelect>>", self._wd_update_extra_link_manager_buttons)
+        self._wd_extra_links_tree = tree
+
+        buttons = ttk.Frame(container)
+        buttons.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(10, 0))
+        ttk.Button(buttons, text="Thêm link local...", command=self._wd_add_local_extra_link).pack(side=tk.LEFT)
+        self._wd_extra_link_delete_btn = ttk.Button(
+            buttons, text="Xóa link local", command=self._wd_delete_selected_extra_link, state=tk.DISABLED
+        )
+        self._wd_extra_link_delete_btn.pack(side=tk.LEFT, padx=(6, 0))
+        ttk.Button(buttons, text="↑ Lên", command=lambda: self._wd_move_selected_extra_link(-1)).pack(side=tk.LEFT, padx=(14, 0))
+        ttk.Button(buttons, text="↓ Xuống", command=lambda: self._wd_move_selected_extra_link(1)).pack(side=tk.LEFT, padx=(6, 0))
+        ttk.Button(buttons, text="Mở link", command=self._wd_open_selected_extra_link).pack(side=tk.LEFT, padx=(14, 0))
+        ttk.Button(buttons, text="Đóng", command=win.destroy).pack(side=tk.RIGHT)
+        self._wd_refresh_extra_links_manager()
+
+    def _wd_extra_links_manager_book(self) -> Optional[dict]:
+        bid = str(getattr(self, "_wd_extra_links_book_id", "") or "")
+        books = self.wikidich_data.get("books", {}) if isinstance(self.wikidich_data, dict) else {}
+        book = books.get(bid) if isinstance(books, dict) else None
+        return book if isinstance(book, dict) else None
+
+    def _wd_refresh_extra_links_manager(self, selected_index: Optional[int] = None):
+        if not self._wd_extra_links_manager_alive():
+            return
+        tree = getattr(self, "_wd_extra_links_tree", None)
+        book = self._wd_extra_links_manager_book()
+        if tree is None or not book:
+            return
+        previous = tree.selection()
+        if selected_index is None and previous:
+            try:
+                selected_index = int(str(previous[0]).rsplit("_", 1)[-1])
+            except Exception:
+                selected_index = None
+        for iid in tree.get_children():
+            tree.delete(iid)
+        links = list(book.get("extra_links") or [])
+        for index, link in enumerate(links):
+            item = link if isinstance(link, dict) else {"label": str(link or ""), "url": str(link or "")}
+            source = "Máy này" if self._wd_is_local_extra_link(item) else "Server"
+            tree.insert(
+                "",
+                "end",
+                iid=f"link_{index}",
+                values=(index + 1, item.get("label") or item.get("url") or "", item.get("url") or "", source),
+            )
+        if links and selected_index is not None:
+            selected_index = max(0, min(int(selected_index), len(links) - 1))
+            iid = f"link_{selected_index}"
+            tree.selection_set(iid)
+            tree.focus(iid)
+            tree.see(iid)
+        title = str(book.get("title") or book.get("id") or "")
+        self._wd_extra_links_win.title(f"Quản lý link bổ sung - {title}")
+        self._wd_update_extra_link_manager_buttons()
+
+    def _wd_selected_extra_link_index(self) -> Optional[int]:
+        tree = getattr(self, "_wd_extra_links_tree", None)
+        if tree is None:
+            return None
+        selected = tree.selection()
+        if not selected:
+            return None
+        try:
+            return int(str(selected[0]).rsplit("_", 1)[-1])
+        except Exception:
+            return None
+
+    def _wd_update_extra_link_manager_buttons(self, _event=None):
+        button = getattr(self, "_wd_extra_link_delete_btn", None)
+        book = self._wd_extra_links_manager_book()
+        index = self._wd_selected_extra_link_index()
+        can_delete = False
+        if button is not None and book is not None and index is not None:
+            links = list(book.get("extra_links") or [])
+            can_delete = 0 <= index < len(links) and self._wd_is_local_extra_link(links[index])
+        if button is not None:
+            button.config(state=tk.NORMAL if can_delete else tk.DISABLED)
+
+    def _wd_add_local_extra_link(self):
+        book = self._wd_extra_links_manager_book()
+        if not book:
+            return
+        raw_url = simpledialog.askstring(
+            "Thêm link local",
+            "Nhập URL http/https. Link này chỉ được lưu trên máy hiện tại:",
+            parent=self._wd_extra_links_win,
+        )
+        if raw_url is None:
+            return
+        url = self._wd_normalize_external_url(raw_url)
+        if not url:
+            messagebox.showerror("URL không hợp lệ", "Vui lòng nhập URL http/https hợp lệ.", parent=self._wd_extra_links_win)
+            return
+        links = list(book.get("extra_links") or [])
+        key = self._wd_extra_link_key(url)
+        if any(self._wd_extra_link_key(item) == key for item in links):
+            messagebox.showinfo("Link đã tồn tại", "URL này đã có trong danh sách.", parent=self._wd_extra_links_win)
+            return
+        default_label = urlparse(url).netloc or "Link local"
+        label = simpledialog.askstring(
+            "Tên link",
+            "Nhập tên hiển thị:",
+            initialvalue=default_label,
+            parent=self._wd_extra_links_win,
+        )
+        if label is None:
+            return
+        links.append({
+            "label": label.strip() or default_label,
+            "url": url,
+            "source": "local",
+            "local_only": True,
+        })
+        self._wd_commit_extra_links(book, links, selected_index=len(links) - 1)
+        self.log(f"[Wikidich] Đã thêm link local cho '{book.get('title', book.get('id'))}': {url}")
+
+    def _wd_delete_selected_extra_link(self):
+        book = self._wd_extra_links_manager_book()
+        index = self._wd_selected_extra_link_index()
+        if not book or index is None:
+            return
+        links = list(book.get("extra_links") or [])
+        if index < 0 or index >= len(links):
+            return
+        link = links[index]
+        if not self._wd_is_local_extra_link(link):
+            messagebox.showinfo(
+                "Link từ server",
+                "Link này có trên server nên không thể xóa tại đây. Bạn vẫn có thể đổi thứ tự ưu tiên.",
+                parent=self._wd_extra_links_win,
+            )
+            return
+        label = (link.get("label") or link.get("url") or "link này") if isinstance(link, dict) else str(link)
+        if not messagebox.askyesno("Xóa link local", f"Xóa '{label}' khỏi máy này?", parent=self._wd_extra_links_win):
+            return
+        removed = links.pop(index)
+        self._wd_commit_extra_links(book, links, selected_index=min(index, len(links) - 1) if links else None)
+        self.log(f"[Wikidich] Đã xóa link local: {self._wd_extra_link_key(removed)}")
+
+    def _wd_move_selected_extra_link(self, direction: int):
+        book = self._wd_extra_links_manager_book()
+        index = self._wd_selected_extra_link_index()
+        if not book or index is None:
+            return
+        links = list(book.get("extra_links") or [])
+        target = index + (-1 if direction < 0 else 1)
+        if index < 0 or index >= len(links) or target < 0 or target >= len(links):
+            return
+        links[index], links[target] = links[target], links[index]
+        self._wd_commit_extra_links(book, links, selected_index=target)
+
+    def _wd_open_selected_extra_link(self):
+        book = self._wd_extra_links_manager_book()
+        index = self._wd_selected_extra_link_index()
+        if not book or index is None:
+            return
+        links = list(book.get("extra_links") or [])
+        if 0 <= index < len(links):
+            link = links[index]
+            self._wd_open_link((link.get("url") if isinstance(link, dict) else link) or "")
+
     def _wd_is_manual_origin_link(self, link) -> bool:
         if not isinstance(link, dict):
             return False
@@ -2544,7 +2830,7 @@ class WikidichMixin:
     def _wd_update_manual_origin_ui(self, book: Optional[dict] = None):
         current = book or getattr(self, "wd_selected_book", None)
         origin_url = self._wd_get_manual_origin_url(current)
-        allow_edit = bool(current and current.get("id") and self._wd_is_foreign_works())
+        allow_edit = bool(current and current.get("id"))
         if hasattr(self, "wd_manual_origin_var"):
             self.wd_manual_origin_var.set(origin_url)
         if hasattr(self, "wd_manual_origin_btn"):
@@ -2585,24 +2871,15 @@ class WikidichMixin:
                 "url": origin_url,
                 "kind": "manual_origin",
                 "manual_origin": True,
+                "source": "local",
+                "local_only": True,
             })
-        target["extra_links"] = new_links
-        if isinstance(books, dict):
-            books[bid] = target
-        if isinstance(book, dict):
-            book["extra_links"] = list(new_links)
-        if getattr(self, "wd_selected_book", None) and self.wd_selected_book.get("id") == bid:
-            self.wd_selected_book["extra_links"] = list(new_links)
-        self._wd_save_cache()
-        self._wd_show_detail(target)
+        self._wd_commit_extra_links(target, new_links, selected_index=0 if origin_url else None)
 
     def _wd_set_manual_origin_link_from_ui(self):
         book = getattr(self, "wd_selected_book", None)
         if not book or not book.get("id"):
             messagebox.showinfo("Chưa chọn truyện", "Chọn một truyện trước.", parent=self)
-            return
-        if not self._wd_is_foreign_works():
-            messagebox.showinfo("Không hỗ trợ", "Chỉ hỗ trợ nhập web gốc khi dùng Works không chính chủ.", parent=self)
             return
         current_url = self._wd_get_manual_origin_url(book)
         raw = simpledialog.askstring(
@@ -7145,6 +7422,32 @@ class WikidichMixin:
                 return url
         return None
 
+    def _wd_iter_supported_extra_links(self, book: dict, domains: list):
+        """Duyệt link hỗ trợ đúng thứ tự người dùng nhìn thấy từ trên xuống."""
+        normalized_domains = [str(domain or "").strip().lower() for domain in (domains or []) if domain]
+        for link in (book.get("extra_links") or []) if isinstance(book, dict) else []:
+            url = (link.get("url") if isinstance(link, dict) else link) or ""
+            url = str(url).strip()
+            lowered = url.lower()
+            if not url:
+                continue
+            for domain in normalized_domains:
+                if domain in lowered:
+                    yield domain, url
+                    break
+
+    def _wd_first_supported_extra_link(self, book: dict):
+        domains = [
+            "fanqienovel.com",
+            "jjwxc.net",
+            "po18.tw",
+            "qidian.com",
+            "ihuaben.com",
+            "read.douban.com",
+            "qimao.com",
+        ]
+        return next(self._wd_iter_supported_extra_links(book, domains), (None, None))
+
     def _wd_switch_site(self, site: str):
         site = (site or "").strip().lower()
         if site not in ("wikidich", "koanchay"):
@@ -7162,6 +7465,15 @@ class WikidichMixin:
         if site == "koanchay" and not self._wd_show_koanchay_enabled():
             messagebox.showinfo("Koanchay đang ẩn", "Bật 'Hiện Koanchay' trong tab Cài đặt để dùng lại.")
             return
+        if site != getattr(self, "wd_site", "wikidich") and self._wd_extra_links_manager_alive():
+            try:
+                self._wd_extra_links_win.destroy()
+            except Exception:
+                pass
+            self._wd_extra_links_win = None
+            self._wd_extra_links_tree = None
+            self._wd_extra_link_delete_btn = None
+            self._wd_extra_links_book_id = ""
         try:
             if self.notebook.tab(tab, "state") == "hidden":
                 self.notebook.tab(tab, state="normal")
@@ -7213,6 +7525,7 @@ class WikidichMixin:
             "_wd_cache_paths", "_wd_global_notes_win", "_wd_notes_tree",
             "_wd_notes_preview", "_wd_not_found_prompting", "_wd_not_found_prompted",
             "_wd_link_tree", "_wd_global_links_win",
+            "_wd_extra_links_win", "_wd_extra_links_tree", "_wd_extra_link_delete_btn", "_wd_extra_links_book_id",
             "_wd_loading_site", "_wd_progress_visible_by_site", "_wd_progress_running_by_site"
         }
         return {
@@ -7651,28 +7964,9 @@ class WikidichMixin:
         self._wd_resume_details = None
 
     def _wd_calculate_new_chapters(self, book: dict, proxies=None, headers=None):
-        fanqie_url = self._wd_find_link_with_domain(book, "fanqienovel.com")
-        if fanqie_url:
-            remote_total = self._wd_fetch_fanqie_chapter_count(fanqie_url, proxies=proxies, headers=headers)
-            if remote_total is None:
-                # Fallback cuối cùng về extension cũ để giữ tương thích.
-                legacy = fanqienovel_ext.fetch_chapters(fanqie_url, proxies=proxies, headers=headers)
-                if legacy and not legacy.get("error"):
-                    remote_list = legacy.get("data") or []
-                    remote_total = len(remote_list)
-                elif legacy and legacy.get("error"):
-                    self.log(f"[Wikidich] Không thể lấy chương (fanqienovel.com): {legacy.get('error')}")
-            if remote_total is not None:
-                current_total = book.get('chapters') or 0
-                try:
-                    current_total = int(current_total)
-                except Exception:
-                    current_total = 0
-                diff = int(remote_total) - current_total
-                return diff if diff > 0 else 0
-
         cookie_db_path = self._wd_get_cookie_db_path()
-        domains = [
+        handlers = [
+            ("fanqienovel.com", None, {}),
             ("jjwxc.net", jjwxc_ext.fetch_chapters, {}),
             ("po18.tw", po18_ext.fetch_chapters, {"cookie_db_path": cookie_db_path}),
             ("qidian.com", qidian_ext.fetch_chapters, {"cookie_db_path": cookie_db_path}),
@@ -7680,19 +7974,34 @@ class WikidichMixin:
             ("read.douban.com", douban_ext.fetch_chapters, {}),
             ("qimao.com", qimao_ext.fetch_chapters, {}),
         ]
-        for domain, fetcher, extra_args in domains:
-            url = self._wd_find_link_with_domain(book, domain)
-            if not url:
+        handler_map = {domain: (fetcher, extra_args) for domain, fetcher, extra_args in handlers}
+        supported = [item[0] for item in handlers]
+        for domain, url in self._wd_iter_supported_extra_links(book, supported):
+            fetcher, extra_args = handler_map[domain]
+            try:
+                if domain == "fanqienovel.com":
+                    remote_total = self._wd_fetch_fanqie_chapter_count(url, proxies=proxies, headers=headers)
+                    if remote_total is None:
+                        # Fallback cuối cùng về extension cũ để giữ tương thích.
+                        legacy = fanqienovel_ext.fetch_chapters(url, proxies=proxies, headers=headers)
+                        if legacy and not legacy.get("error"):
+                            remote_total = len(legacy.get("data") or [])
+                        elif legacy and legacy.get("error"):
+                            self.log(f"[Wikidich] Không thể lấy chương ({domain}): {legacy.get('error')}")
+                    if remote_total is None:
+                        continue
+                else:
+                    kwargs = {"proxies": proxies}
+                    kwargs.update({k: v for k, v in extra_args.items() if v is not None})
+                    result = fetcher(url, **kwargs)
+                    if not result or result.get('error'):
+                        if result and result.get('error'):
+                            self.log(f"[Wikidich] Không thể lấy chương ({domain}) cho '{book.get('title', '')}': {result['error']}")
+                        continue
+                    remote_total = len(result.get('data') or [])
+            except Exception as exc:
+                self.log(f"[Wikidich] Lỗi kiểm tra link {domain} cho '{book.get('title', '')}': {exc}")
                 continue
-            kwargs = {"proxies": proxies}
-            kwargs.update({k: v for k, v in extra_args.items() if v is not None})
-            result = fetcher(url, **kwargs)
-            if not result or result.get('error'):
-                if result and result.get('error'):
-                    self.log(f"[Wikidich] Không thể lấy chương ({domain}) cho '{book.get('title', '')}': {result['error']}")
-                continue
-            remote_list = result.get('data') or []
-            remote_total = len(remote_list)
             current_total = book.get('chapters') or 0
             try:
                 current_total = int(current_total)
@@ -7850,8 +8159,8 @@ class WikidichMixin:
         return data if isinstance(data, list) else []
 
     def _wd_calculate_new_chapters_with_cache(self, book: dict, proxies=None, headers=None):
-        fanqie_url = self._wd_find_link_with_domain(book, "fanqienovel.com")
-        if not fanqie_url:
+        first_domain, fanqie_url = self._wd_first_supported_extra_link(book)
+        if first_domain != "fanqienovel.com" or not fanqie_url:
             return self._wd_calculate_new_chapters(book, proxies=proxies, headers=headers), None
         toc = self._wd_fetch_fanqie_toc(fanqie_url, proxies=proxies, headers=headers)
         if not isinstance(toc, list) or not toc:
@@ -7892,7 +8201,10 @@ class WikidichMixin:
         entry = cache_map.get(bid) if isinstance(cache_map, dict) else None
         if not isinstance(entry, dict) or entry.get("source") != "fanqie":
             return None
-        fanqie_url = self._wd_find_link_with_domain(book, "fanqienovel.com") or ""
+        first_domain, fanqie_url = self._wd_first_supported_extra_link(book)
+        if first_domain != "fanqienovel.com":
+            return None
+        fanqie_url = fanqie_url or ""
         if fanqie_url and entry.get("url") and str(entry.get("url")) != fanqie_url:
             return None
         old_current = int(entry.get("current_chapters") or 0)

@@ -744,6 +744,69 @@ def _normalize_external_link(href: str, base_url: str) -> str:
     return abs_url
 
 
+def _additional_link_key(link: Any) -> str:
+    if isinstance(link, dict):
+        raw = link.get("url") or ""
+    else:
+        raw = link or ""
+    return str(raw).strip().rstrip("/").lower()
+
+
+def _is_local_additional_link(link: Any) -> bool:
+    if not isinstance(link, dict):
+        return False
+    source = str(link.get("source") or "").strip().lower()
+    return bool(
+        source == "local"
+        or link.get("local_only") is True
+        or link.get("manual_origin") is True
+    )
+
+
+def merge_additional_links(previous: Any, server_links: Any) -> List[Dict[str, Any]]:
+    """Giữ link local và thứ tự người dùng trong khi làm mới link từ server."""
+    old_items = [item for item in (previous or []) if _additional_link_key(item)]
+    incoming = []
+    incoming_by_key = {}
+    for raw in server_links or []:
+        if isinstance(raw, dict):
+            item = dict(raw)
+        else:
+            item = {"label": str(raw or ""), "url": str(raw or "")}
+        key = _additional_link_key(item)
+        if not key or key in incoming_by_key:
+            continue
+        item["source"] = "server"
+        item.pop("local_only", None)
+        incoming.append(item)
+        incoming_by_key[key] = item
+
+    result = []
+    seen = set()
+    # Thứ tự hiện tại trong cache là thứ tự người dùng đã sắp xếp.
+    for raw in old_items:
+        key = _additional_link_key(raw)
+        if not key or key in seen:
+            continue
+        if key in incoming_by_key:
+            result.append(dict(incoming_by_key[key]))
+            seen.add(key)
+        elif _is_local_additional_link(raw):
+            item = dict(raw)
+            item["source"] = "local"
+            item["local_only"] = True
+            result.append(item)
+            seen.add(key)
+
+    # Link server mới chưa từng có trong cache được thêm cuối danh sách.
+    for item in incoming:
+        key = _additional_link_key(item)
+        if key not in seen:
+            result.append(dict(item))
+            seen.add(key)
+    return result
+
+
 def _parse_additional_links(desc_block: BeautifulSoup, base_url: str, ignore_block: Optional[BeautifulSoup]) -> List[Dict[str, str]]:
     links: List[Dict[str, str]] = []
     if not desc_block:
@@ -760,7 +823,7 @@ def _parse_additional_links(desc_block: BeautifulSoup, base_url: str, ignore_blo
         href = a.get("href", "")
         if href.startswith("/tim-kiem"):
             continue
-        links.append({"label": label, "url": _normalize_external_link(href, base_url)})
+        links.append({"label": label, "url": _normalize_external_link(href, base_url), "source": "server"})
     return links
 
 
@@ -807,7 +870,8 @@ def _parse_book_page(
     summary_el = doc.select_one(".book-desc-detail")
     summary = summary_el.get_text("\n", strip=True) if summary_el else ""
     summary_norm = _normalize(summary)
-    extra_links = _parse_additional_links(desc_block, base_url, genre_p)
+    server_links = _parse_additional_links(desc_block, base_url, genre_p)
+    extra_links = merge_additional_links(book.get("extra_links") or [], server_links)
 
     book_id = (doc.select_one('input[name="bookId"]') or {}).get("value", "")
     if not book_id:

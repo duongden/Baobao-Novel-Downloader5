@@ -587,6 +587,10 @@ class RenamerApp(
         self._wd_notes_preview = None
         self._wd_global_links_win = None
         self._wd_link_tree = None
+        self._wd_extra_links_win = None
+        self._wd_extra_links_tree = None
+        self._wd_extra_link_delete_btn = None
+        self._wd_extra_links_book_id = ""
         self._browser_user_agent = None
         self._browser_headers = {}
         self._browser_cookies = {}
