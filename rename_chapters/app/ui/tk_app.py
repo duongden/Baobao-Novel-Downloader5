@@ -3723,32 +3723,71 @@ VÍ DỤ 3: Chia theo các dòng có 5 dấu sao trở lên
         text_widget.insert(tk.END, markdown_text[last_end:])
         text_widget.config(state='disabled')
 
-    def _open_feedback_issue(self):
+    def _feedback_log_excerpt(self, log_text: str, max_lines: int = 50, max_chars: int = 3200) -> str:
+        raw_lines = str(log_text or "").replace("\r\n", "\n").replace("\r", "\n").splitlines()
+        was_trimmed = len(raw_lines) > max_lines
+        lines = raw_lines[-max_lines:]
+        compact = []
+        for line in lines:
+            line = line.rstrip()
+            if len(line) > 420:
+                line = line[:417] + "..."
+                was_trimmed = True
+            compact.append(line)
+        excerpt = "\n".join(compact).strip()
+        if len(excerpt) > max_chars:
+            excerpt = excerpt[-max_chars:]
+            if "\n" in excerpt:
+                excerpt = excerpt.split("\n", 1)[1]
+            was_trimmed = True
+        if was_trimmed and excerpt:
+            excerpt = "[Đã lược bớt log cũ/dòng quá dài]\n" + excerpt
+        return excerpt.replace("```", "` ` `")
+
+    def _build_feedback_issue_url(self, log_text: str, max_url_bytes: int = 7000) -> str:
         base_url = "https://github.com/BaoBao666888/Novel-Downloader5/issues/new"
         title = f"[Feedback] Rename Chapters {self.CURRENT_VERSION}"
+        excerpt = self._feedback_log_excerpt(log_text)
+
+        def _make_body(current_excerpt: str) -> str:
+            shown_log = current_excerpt or "(Không có log trong giao diện)"
+            return (
+                f"Phiên bản: {self.CURRENT_VERSION}\n"
+                f"Hệ điều hành: {sys.platform}\n\n"
+                "Mô tả vấn đề / góp ý:\n"
+                "- \n\n"
+                "Cách tái hiện (nếu là lỗi):\n"
+                "1. \n"
+                "2. \n\n"
+                "Log gần nhất (đã giới hạn để GitHub không quá tải):\n"
+                "```text\n"
+                f"{shown_log}\n"
+                "```\n\n"
+                "Nếu cần log đầy đủ, vui lòng kéo thả file log theo ngày trong thư mục `logs` vào issue.\n"
+            )
+
+        body = _make_body(excerpt)
+        url = f"{base_url}?title={quote(title, safe='')}&body={quote(body, safe='')}"
+        while excerpt and len(url.encode("utf-8")) > max_url_bytes:
+            keep = max(0, int(len(excerpt) * 0.75))
+            excerpt = excerpt[-keep:] if keep else ""
+            if "\n" in excerpt:
+                excerpt = excerpt.split("\n", 1)[1]
+            excerpt = ("[Đã lược bớt log để vừa giới hạn URL]\n" + excerpt) if excerpt else ""
+            body = _make_body(excerpt)
+            url = f"{base_url}?title={quote(title, safe='')}&body={quote(body, safe='')}"
+        return url
+
+    def _open_feedback_issue(self):
         log_text = ""
         widget = getattr(self, "log_text", None)
         if widget:
             try:
-                log_text = widget.get("1.0", tk.END).strip()
+                # Chỉ đọc phần đuôi thay vì kéo toàn bộ widget log lớn vào bộ nhớ/URL.
+                log_text = widget.get("end-61l", "end-1c").strip()
             except Exception:
                 log_text = ""
-        if log_text:
-            lines = log_text.splitlines()
-            if len(lines) > 120:
-                log_text = "\n".join(lines[-120:])
-        body = (
-            f"Phiên bản: {self.CURRENT_VERSION}\n"
-            f"Hệ điều hành: {sys.platform}\n\n"
-            "Mô tả vấn đề / góp ý:\n"
-            "- \n\n"
-            "Cách tái hiện (nếu là lỗi):\n"
-            "1. \n"
-            "2. \n\n"
-            "Log liên quan (nếu có):\n"
-            f"{log_text}\n"
-        )
-        url = f"{base_url}?title={quote(title)}&body={quote(body)}"
+        url = self._build_feedback_issue_url(log_text)
         try:
             webbrowser.open(url)
         except Exception:
