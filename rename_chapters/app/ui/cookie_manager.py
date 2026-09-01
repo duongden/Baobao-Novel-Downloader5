@@ -85,8 +85,10 @@ class CookieManagerWindow(tk.Toplevel):
         self.db_path = db_path
         self._on_close = on_close
         self._on_profile_change = on_profile_change
-        self._profiles = profiles or ["Profile 1"]
-        self._current_profile = current_profile or "Profile 1"
+        self._profiles = list(dict.fromkeys(profile for profile in (profiles or []) if str(profile or "").strip()))
+        if not self._profiles:
+            self._profiles = ["Profile 1"]
+        self._current_profile = current_profile if current_profile in self._profiles else self._profiles[0]
         self.title("Quản lý cookie trình duyệt")
         self.geometry("860x560")
         self.minsize(640, 460)

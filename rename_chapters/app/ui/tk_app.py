@@ -1139,7 +1139,14 @@ class RenamerApp(
         
         # Lấy danh sách profiles và profile hiện tại
         profiles = self._get_all_profiles()
-        current_profile = self._get_current_browser_profile()
+        if not profiles:
+            messagebox.showwarning(
+                "Cookie",
+                "Không còn profile trình duyệt nào. Hãy tạo hoặc khôi phục một profile trước khi mở Cookie.",
+                parent=self,
+            )
+            return
+        current_profile = self._get_current_browser_profile(profiles)
         db_path = self._wd_get_cookie_db_path(current_profile)
         
         cookie_dir = os.path.dirname(db_path)
@@ -1177,21 +1184,32 @@ class RenamerApp(
             pass
         if "Profile 1" in deleted and "Profile 1" in profiles:
             profiles = [p for p in profiles if p != "Profile 1"]
-        if not profiles:
+        if not profiles and "Profile 1" not in deleted:
             profiles = ["Profile 1"]
         return profiles
 
-    def _get_current_browser_profile(self):
-        """Lấy profile hiện tại của browser overlay, hoặc mặc định."""
+    def _get_current_browser_profile(self, profiles=None):
+        """Lấy profile hiện tại nếu còn tồn tại và chưa nằm trong thùng rác."""
+        available = list(profiles if profiles is not None else self._get_all_profiles())
+        deleted = self._wd_get_deleted_profile_names() if hasattr(self, "_wd_get_deleted_profile_names") else set()
+        candidates = []
         if hasattr(self, "browser_overlay") and self.browser_overlay and self.browser_overlay.profile_dir:
             # Trích xuất tên profile từ path
             profile_dir = self.browser_overlay.profile_dir
             dir_name = os.path.basename(profile_dir)
             if dir_name.startswith("qt_browser_profile_"):
-                return dir_name.replace("qt_browser_profile_", "").replace("_", " ")
+                candidates.append(dir_name.replace("qt_browser_profile_", "").replace("_", " "))
             elif dir_name == "qt_browser_profile":
-                return "Profile 1"
-        return "Profile 1"
+                candidates.append("Profile 1")
+        if hasattr(self, "wd_profile_var"):
+            try:
+                candidates.append((self.wd_profile_var.get() or "").strip())
+            except Exception:
+                pass
+        for candidate in candidates:
+            if candidate and candidate in available and candidate not in deleted:
+                return candidate
+        return available[0] if available else ""
 
     def _on_cookie_profile_change(self, profile_name: str) -> str:
         """Callback khi user đổi profile trong cửa sổ Cookie. Trả về db_path mới."""
