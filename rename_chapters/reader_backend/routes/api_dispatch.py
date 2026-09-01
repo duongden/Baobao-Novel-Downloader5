@@ -125,6 +125,7 @@ def handle_api(handler: Any, method: str, parsed: Any, *, deps: ApiDispatchDeps)
             map_selection_to_name_source=deps.map_selection_to_name_source,
             map_selection_to_source_segment=deps.map_selection_to_source_segment,
             text_snippet=deps.text_snippet,
+            vbook_local_translate=deps.vbook_local_translate,
         ),
     )
     if library_reader_result is not None:

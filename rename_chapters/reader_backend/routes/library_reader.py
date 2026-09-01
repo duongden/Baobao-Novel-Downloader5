@@ -21,6 +21,7 @@ class LibraryReaderDeps:
     map_selection_to_name_source: Any
     map_selection_to_source_segment: Any
     text_snippet: Any
+    vbook_local_translate: Any
 
 
 def _default_name_context(handler) -> tuple[dict[str, Any], str | None]:
@@ -360,7 +361,7 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
             name_set_override=active_name_set,
             vp_set_override=active_vp_set,
         )
-        if mode == "trans" and translate_mode == "server":
+        if mode == "trans" and translate_mode in {"server", "tm_translate_beta"}:
             rows = data.get("items")
             if isinstance(rows, list) and rows:
                 raw_titles = [
@@ -886,7 +887,7 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
         unit_map: list[dict[str, Any]] = []
         token_map: list[dict[str, Any]] = []
         name_set_for_mapping = None
-        if translate_mode == "server":
+        if translate_mode in {"server", "tm_translate_beta"}:
             displayed_sig = str(payload.get("displayed_trans_sig") or "").strip()
             current_sig = displayed_sig or str(chapter.get("trans_sig") or "").strip()
             translated_text = _normalize_client_reader_text(payload.get("translated_text") or "")
@@ -943,10 +944,16 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
                 )
                 token_map = detail.get("token_map") if isinstance(detail.get("token_map"), list) else []
         state = _get_name_set_state(handler, chapter["book_id"])
-        if translate_mode == "server":
+        if translate_mode in {"server", "tm_translate_beta"}:
             effective_name_set = name_set_for_mapping if isinstance(name_set_for_mapping, dict) else translator._server_name_set_for_use(active_name_set)
         else:
             effective_name_set = translator._name_set_for_use(active_name_set)
+        hanviet_map = None
+        if translate_mode == "tm_translate_beta":
+            try:
+                hanviet_map = deps.vbook_local_translate.get_public_bundle(translator._local_settings("hanviet")).hanviet
+            except Exception:
+                hanviet_map = {}
         mapped = deps.map_selection_to_name_source(
             raw_text=raw_text,
             translated_text=translated_text,
@@ -957,6 +964,7 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
             unit_map=unit_map,
             token_map=token_map,
             translation_mode=translate_mode,
+            hanviet_map=hanviet_map,
         )
         return {
             "ok": True,
@@ -1023,7 +1031,7 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
         translated_text = ""
         unit_map: list[dict[str, Any]] = []
         token_map: list[dict[str, Any]] = []
-        if translate_mode == "server":
+        if translate_mode in {"server", "tm_translate_beta"}:
             current_sig = str(payload.get("displayed_trans_sig") or "").strip() or str(chapter.get("trans_sig") or "").strip()
             translated_text = _normalize_client_reader_text(payload.get("translated_text") or "")
             if not translated_text:

@@ -1151,6 +1151,7 @@ def build_name_right_suggestions(
 
 
 NAME_PLACEHOLDER_PREFIX = "__TM_NAME_"
+TM_TRANSLATE_BETA_MODE = "tm_translate_beta"
 
 
 def normalize_name_set(name_set: Any) -> dict[str, str]:
@@ -1374,6 +1375,67 @@ def needs_server_translation(text: str) -> bool:
     return bool(re.search(r"[\u3400-\u9fff]", value) or NAME_PLACEHOLDER_PREFIX in value)
 
 
+def tokenize_tm_translate_text(text: str) -> list[tuple[str, str]]:
+    """Mirror TM Translate's text/special token split without splitting punctuation."""
+    value = translator_logic.normalize_text_for_translation(text or "")
+    if not value:
+        return []
+    tokens: list[tuple[str, str]] = []
+    buffer: list[str] = []
+    buffer_kind = ""
+
+    def flush() -> None:
+        nonlocal buffer, buffer_kind
+        if buffer:
+            tokens.append((buffer_kind, "".join(buffer)))
+        buffer = []
+        buffer_kind = ""
+
+    for ch in value:
+        category = unicodedata.category(ch)
+        is_special = not ch.isspace() and (not category or category[0] not in {"L", "N", "M", "P"})
+        kind = "special" if is_special else "text"
+        if buffer_kind and kind != buffer_kind:
+            flush()
+        buffer_kind = kind
+        buffer.append(ch)
+    flush()
+
+    merged: list[tuple[str, str]] = []
+    for kind, token in tokens:
+        if kind == "text" and merged and merged[-1][0] == "text":
+            merged[-1] = ("text", merged[-1][1] + token)
+        else:
+            merged.append((kind, token))
+    return merged
+
+
+def capitalize_tm_translate_text(text: str) -> str:
+    """Apply the same paragraph typography/capitalization rule as TM Translate."""
+    value = translator_logic.normalize_translated_text(text or "")
+    if not value:
+        return ""
+    output: list[str] = []
+    should_capitalize = True
+    quote_prefix = {'"', "'", "“", "‘", "(", "["}
+    for ch in value:
+        if should_capitalize:
+            if ch.isspace() or ch in quote_prefix:
+                output.append(ch)
+                continue
+            if unicodedata.category(ch).startswith("L"):
+                output.append(ch.upper())
+                should_capitalize = False
+                continue
+            output.append(ch)
+            should_capitalize = ch in ".?!…:"
+            continue
+        output.append(ch)
+        if ch in ".?!…:":
+            should_capitalize = True
+    return "".join(output)
+
+
 def _text_snippet(text: str, start: int, end: int, radius: int = 56) -> str:
     source = text or ""
     if not source:
@@ -1381,6 +1443,376 @@ def _text_snippet(text: str, start: int, end: int, radius: int = 56) -> str:
     s = max(0, int(start) - radius)
     e = min(len(source), int(end) + radius)
     return source[s:e].strip()
+
+
+_TM_EDIT_PUNCTUATION_GROUPS = (
+    (",", "，,、､﹐﹑︐"), (".", "。｡.．﹒…⋯︙"), ("!", "！!﹗"), ("?", "？?﹖"),
+    (";", "；;﹔"), (":", "：:﹕"), ("<", "《〈<＜‹«︽︿"), (">", "》〉>＞›»︾﹀"),
+    ("(", "（(﹙︵"), (")", "）)﹚︶"), ("[", "【〔［[〖〘〚﹇︹︻"), ("]", "】〕］]〗〙〛﹈︺︼"),
+    ("{", "｛{﹛︷"), ("}", "｝}﹜︸"), ('"', '“”„‟「」『』〝〞﹁﹂﹃﹄"＂'), ("'", "‘’‚‛'＇"),
+    ("-", "—–―－-‐‑‒﹘"), ("·", "·・•‧∙⋅"), ("~", "～~"), ("/", "／/"),
+    ("\\", "＼\\"), ("|", "｜|"), ("=", "＝="), ("+", "＋+"), ("*", "＊*"), ("\n", "\n\r"),
+)
+_TM_EDIT_PUNCTUATION_MAP = {
+    char: canonical
+    for canonical, characters in _TM_EDIT_PUNCTUATION_GROUPS
+    for char in characters
+}
+
+
+def _tm_edit_structural_punctuation(text: str, index: int) -> str | None:
+    ch = text[index] if 0 <= index < len(text) else ""
+    canonical = _TM_EDIT_PUNCTUATION_MAP.get(ch)
+    if canonical is None:
+        normalized = unicodedata.normalize("NFKC", ch)
+        if len(normalized) == 1:
+            canonical = _TM_EDIT_PUNCTUATION_MAP.get(normalized)
+    if canonical is None and ch and unicodedata.category(ch).startswith("P"):
+        canonical = ch
+    if canonical != "-" or ch not in {"-", "‐", "‑", "﹘", "－"}:
+        return canonical
+    before = text[index - 1] if index > 0 else ""
+    after = text[index + 1] if index + 1 < len(text) else ""
+
+    def latin_token_char(value: str) -> bool:
+        if not value:
+            return False
+        category = unicodedata.category(value)
+        return category[0] in {"N", "M"} or "LATIN" in unicodedata.name(value, "")
+
+    return None if latin_token_char(before) and latin_token_char(after) else canonical
+
+
+def _tm_edit_split_clauses(value: str) -> list[dict[str, Any]]:
+    text = str(value or "")
+    clauses: list[dict[str, Any]] = []
+
+    def push(raw_start: int, raw_end: int, separator_end: int, separator: str) -> None:
+        content_start = raw_start
+        content_end = raw_end
+        while content_start < content_end and text[content_start].isspace():
+            content_start += 1
+        while content_end > content_start and text[content_end - 1].isspace():
+            content_end -= 1
+        if content_end > content_start:
+            clauses.append({
+                "start": content_start,
+                "end": content_end,
+                "separator_end": separator_end,
+                "separator": separator,
+            })
+
+    start = 0
+    index = 0
+    while index < len(text):
+        if _tm_edit_structural_punctuation(text, index) is None:
+            index += 1
+            continue
+        separator_start = index
+        canonical: list[str] = []
+        while index < len(text):
+            mark = _tm_edit_structural_punctuation(text, index)
+            if mark is None:
+                break
+            if mark not in canonical:
+                canonical.append(mark)
+            index += 1
+            next_punctuation = index
+            while next_punctuation < len(text) and text[next_punctuation] not in "\r\n" and text[next_punctuation].isspace():
+                next_punctuation += 1
+            if next_punctuation > index and _tm_edit_structural_punctuation(text, next_punctuation) is not None:
+                index = next_punctuation
+        push(start, separator_start, index, "".join(canonical))
+        start = index
+    push(start, len(text), len(text), "")
+    return clauses
+
+
+def _tm_edit_word_tokens(value: str) -> list[dict[str, Any]]:
+    text = str(value or "")
+    output: list[dict[str, Any]] = []
+    start = -1
+    for index, ch in enumerate(text + " "):
+        category = unicodedata.category(ch)
+        is_word = category and category[0] in {"L", "N", "M"}
+        if is_word and start < 0:
+            start = index
+        elif not is_word and start >= 0:
+            output.append({"value": unicodedata.normalize("NFC", text[start:index]).casefold(), "start": start, "end": index})
+            start = -1
+    return output
+
+
+def _tm_edit_hanviet_tokens(raw: str, hanviet_map: dict[str, Any]) -> list[dict[str, Any]]:
+    output: list[dict[str, Any]] = []
+    latin_start = -1
+
+    def flush_latin(end: int) -> None:
+        nonlocal latin_start
+        if latin_start < 0:
+            return
+        literal = raw[latin_start:end]
+        for token in _tm_edit_word_tokens(literal):
+            output.append({
+                "value": token["value"],
+                "start": latin_start + int(token["start"]),
+                "end": latin_start + int(token["end"]),
+                "source": "latin",
+            })
+        latin_start = -1
+
+    for index, ch in enumerate(raw):
+        is_han = "CJK UNIFIED" in unicodedata.name(ch, "") or "CJK COMPATIBILITY" in unicodedata.name(ch, "")
+        category = unicodedata.category(ch)
+        if is_han:
+            flush_latin(index)
+            mapped = str(hanviet_map.get(ch) or ch).split("/", 1)[0].strip()
+            for token in _tm_edit_word_tokens(mapped):
+                output.append({"value": token["value"], "start": index, "end": index + 1, "source": "hanviet"})
+        elif category and category[0] in {"L", "N", "M"}:
+            if latin_start < 0:
+                latin_start = index
+        else:
+            flush_latin(index)
+    flush_latin(len(raw))
+    return output
+
+
+def _tm_edit_refine_hanviet(
+    raw: str,
+    translated: str,
+    selection_start: int,
+    selection_end: int,
+    hanviet_map: dict[str, Any],
+) -> dict[str, Any]:
+    viet_tokens = _tm_edit_word_tokens(translated)
+    han_tokens = _tm_edit_hanviet_tokens(raw, hanviet_map)
+    if not viet_tokens or not han_tokens:
+        return {"raw_start": 0, "raw_end": len(raw), "viet_start": 0, "viet_end": len(translated), "refined": False}
+    touched = [row for row in viet_tokens if selection_end > int(row["start"]) and selection_start < int(row["end"])]
+    if touched:
+        selection_start = int(touched[0]["start"])
+        selection_end = int(touched[-1]["end"])
+    selected_words = [row["value"] for row in _tm_edit_word_tokens(translated[selection_start:selection_end])]
+    exact: list[tuple[int, int]] = []
+    if selected_words:
+        for index in range(0, len(han_tokens) - len(selected_words) + 1):
+            if [row["value"] for row in han_tokens[index:index + len(selected_words)]] == selected_words:
+                exact.append((int(han_tokens[index]["start"]), int(han_tokens[index + len(selected_words) - 1]["end"])))
+    if len(exact) == 1 and exact[0][1] > exact[0][0]:
+        return {
+            "raw_start": exact[0][0], "raw_end": exact[0][1],
+            "viet_start": selection_start, "viet_end": selection_end, "refined": True,
+        }
+
+    viet_frequency = {row["value"]: sum(1 for item in viet_tokens if item["value"] == row["value"]) for row in viet_tokens}
+    han_frequency = {row["value"]: sum(1 for item in han_tokens if item["value"] == row["value"]) for row in han_tokens}
+    anchors: list[dict[str, int]] = []
+    for vi, viet_token in enumerate(viet_tokens):
+        for hv, han_token in enumerate(han_tokens):
+            if viet_token["value"] != han_token["value"]:
+                continue
+            if vi > 0 and hv > 0 and viet_tokens[vi - 1]["value"] == han_tokens[hv - 1]["value"]:
+                continue
+            length = 1
+            while vi + length < len(viet_tokens) and hv + length < len(han_tokens) and viet_tokens[vi + length]["value"] == han_tokens[hv + length]["value"]:
+                length += 1
+            word = str(viet_token["value"])
+            reliable_single = length == 1 and (len(word) >= 2 or han_token["source"] == "latin") and viet_frequency[word] == 1 and han_frequency[word] == 1
+            if length < 2 and not reliable_single:
+                continue
+            anchors.append({
+                "viet_start": int(viet_token["start"]), "viet_end": int(viet_tokens[vi + length - 1]["end"]),
+                "raw_start": int(han_token["start"]), "raw_end": int(han_tokens[hv + length - 1]["end"]),
+                "length": length,
+            })
+    before = sorted((row for row in anchors if row["viet_end"] <= selection_start), key=lambda row: (row["viet_end"], row["length"]), reverse=True)
+    after = sorted((row for row in anchors if row["viet_start"] >= selection_end), key=lambda row: (row["viet_start"], -row["length"]))
+    left = before[0] if before else None
+    right = after[0] if after else None
+    if left and right and left["raw_end"] > right["raw_start"]:
+        valid = next(((a, b) for a in before for b in after if a["raw_end"] <= b["raw_start"]), None)
+        if valid:
+            left, right = valid
+        elif left["length"] >= right["length"]:
+            right = None
+        else:
+            left = None
+    raw_start = left["raw_end"] if left else 0
+    raw_end = right["raw_start"] if right else len(raw)
+    if (not left and not right) or raw_end <= raw_start:
+        return {"raw_start": 0, "raw_end": len(raw), "viet_start": 0, "viet_end": len(translated), "refined": False}
+    return {
+        "raw_start": raw_start, "raw_end": raw_end,
+        "viet_start": left["viet_end"] if left else 0,
+        "viet_end": right["viet_start"] if right else len(translated),
+        "refined": True,
+    }
+
+
+def _tm_edit_refine_with_names(
+    raw: str,
+    translated: str,
+    selection_start: int,
+    selection_end: int,
+    hanviet_map: dict[str, Any],
+    name_set: dict[str, str],
+) -> dict[str, Any]:
+    candidates: list[dict[str, Any]] = []
+    for raw_name, translated_raw in name_set.items():
+        source_name = str(raw_name or "").strip()
+        translated_name = pick_primary_translation_value(str(translated_raw or "").strip())
+        if not source_name or not translated_name:
+            continue
+        raw_occurrences = [match.span() for match in re.finditer(re.escape(source_name), raw)]
+        translated_occurrences = [match.span() for match in re.finditer(re.escape(translated_name), translated, flags=re.IGNORECASE)]
+        for raw_span, translated_span in zip(raw_occurrences, translated_occurrences):
+            candidates.append({
+                "raw_start": raw_span[0], "raw_end": raw_span[1],
+                "viet_start": translated_span[0], "viet_end": translated_span[1],
+            })
+    candidates.sort(key=lambda row: (row["raw_start"], -(row["raw_end"] - row["raw_start"]), row["viet_start"]))
+    anchors: list[dict[str, Any]] = []
+    for candidate in candidates:
+        previous = anchors[-1] if anchors else None
+        if previous and (candidate["raw_start"] < previous["raw_end"] or candidate["viet_start"] < previous["viet_end"]):
+            continue
+        anchors.append(candidate)
+    if not anchors:
+        result = _tm_edit_refine_hanviet(raw, translated, selection_start, selection_end, hanviet_map)
+        result["name_anchored"] = False
+        return result
+
+    segments: list[dict[str, Any]] = []
+    raw_cursor = 0
+    viet_cursor = 0
+    for anchor in anchors:
+        if anchor["raw_start"] > raw_cursor or anchor["viet_start"] > viet_cursor:
+            segments.append({
+                "type": "text", "raw_start": raw_cursor, "raw_end": anchor["raw_start"],
+                "viet_start": viet_cursor, "viet_end": anchor["viet_start"],
+            })
+        segments.append({"type": "name", **anchor})
+        raw_cursor = anchor["raw_end"]
+        viet_cursor = anchor["viet_end"]
+    if raw_cursor < len(raw) or viet_cursor < len(translated):
+        segments.append({
+            "type": "text", "raw_start": raw_cursor, "raw_end": len(raw),
+            "viet_start": viet_cursor, "viet_end": len(translated),
+        })
+    selected_indexes = [
+        index for index, segment in enumerate(segments)
+        if selection_end > int(segment["viet_start"]) and selection_start < int(segment["viet_end"])
+    ]
+    if not selected_indexes:
+        result = _tm_edit_refine_hanviet(raw, translated, selection_start, selection_end, hanviet_map)
+        result["name_anchored"] = False
+        return result
+
+    first = segments[selected_indexes[0]]
+    last = segments[selected_indexes[-1]]
+
+    def refine_edge(segment: dict[str, Any]) -> dict[str, Any]:
+        if segment["type"] == "name":
+            return {
+                "raw_start": 0, "raw_end": int(segment["raw_end"]) - int(segment["raw_start"]),
+                "viet_start": 0, "viet_end": int(segment["viet_end"]) - int(segment["viet_start"]),
+                "refined": False,
+            }
+        local_start = max(0, selection_start - int(segment["viet_start"]))
+        local_end = min(
+            int(segment["viet_end"]) - int(segment["viet_start"]),
+            max(local_start, selection_end - int(segment["viet_start"])),
+        )
+        return _tm_edit_refine_hanviet(
+            raw[int(segment["raw_start"]):int(segment["raw_end"])],
+            translated[int(segment["viet_start"]):int(segment["viet_end"])],
+            local_start,
+            local_end,
+            hanviet_map,
+        )
+
+    first_result = refine_edge(first)
+    last_result = first_result if first is last else refine_edge(last)
+    return {
+        "raw_start": int(first["raw_start"]) + int(first_result["raw_start"]),
+        "raw_end": int(last["raw_start"]) + int(last_result["raw_end"]),
+        "viet_start": int(first["viet_start"]) + int(first_result["viet_start"]),
+        "viet_end": int(last["viet_start"]) + int(last_result["viet_end"]),
+        "refined": True,
+        "name_anchored": True,
+        "hanviet_refined": bool(first_result.get("refined") or last_result.get("refined")),
+    }
+
+
+def tm_beta_predict_name_source(
+    raw_text: str,
+    translated_text: str,
+    selection_start: int,
+    selection_end: int,
+    hanviet_map: dict[str, Any] | None,
+    name_set: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    raw = str(raw_text or "")
+    translated = str(translated_text or "")
+    raw_clauses = _tm_edit_split_clauses(raw)
+    translated_clauses = _tm_edit_split_clauses(translated)
+    aligned = bool(raw_clauses) and len(raw_clauses) == len(translated_clauses) and all(
+        raw_clause["separator"] == translated_clauses[index]["separator"]
+        for index, raw_clause in enumerate(raw_clauses)
+    )
+    if not aligned:
+        return {"source": raw.strip(), "target": translated.strip(), "method": "safe-full-chunk", "refined": False}
+    selected_indexes = [
+        index for index, clause in enumerate(translated_clauses)
+        if selection_end > int(clause["start"]) and selection_start < int(clause["end"])
+    ]
+    if not selected_indexes:
+        nearest = next((index for index, clause in enumerate(translated_clauses) if selection_start <= int(clause["separator_end"])), len(translated_clauses) - 1)
+        selected_indexes = [nearest]
+    first = selected_indexes[0]
+    last = selected_indexes[-1]
+    raw_clause = raw_clauses[first]
+    translated_clause = translated_clauses[first]
+    if first != last:
+        raw_start = int(raw_clauses[first]["start"])
+        raw_end = int(raw_clauses[last]["end"])
+        viet_start = int(translated_clauses[first]["start"])
+        viet_end = int(translated_clauses[last]["end"])
+        return {
+            "source": raw[raw_start:raw_end].strip(), "target": translated[viet_start:viet_end].strip(),
+            "method": "punctuation", "refined": True,
+            "raw_start": raw_start, "raw_end": raw_end, "target_start": viet_start, "target_end": viet_end,
+        }
+    raw_start = int(raw_clause["start"])
+    raw_end = int(raw_clause["end"])
+    viet_start = int(translated_clause["start"])
+    viet_end = int(translated_clause["end"])
+    refined = _tm_edit_refine_with_names(
+        raw[raw_start:raw_end],
+        translated[viet_start:viet_end],
+        max(0, selection_start - viet_start),
+        max(0, selection_end - viet_start),
+        hanviet_map or {},
+        normalize_name_set(name_set or {}),
+    )
+    final_raw_start = raw_start + int(refined["raw_start"])
+    final_raw_end = raw_start + int(refined["raw_end"])
+    final_viet_start = viet_start + int(refined["viet_start"])
+    final_viet_end = viet_start + int(refined["viet_end"])
+    return {
+        "source": raw[final_raw_start:final_raw_end].strip(),
+        "target": translated[final_viet_start:final_viet_end].strip(),
+        "method": (
+            "punctuation-name-hanviet" if refined.get("name_anchored") and refined.get("hanviet_refined")
+            else "punctuation-name" if refined.get("name_anchored")
+            else "punctuation-hanviet" if refined["refined"]
+            else "punctuation"
+        ),
+        "refined": True,
+        "raw_start": final_raw_start, "raw_end": final_raw_end,
+        "target_start": final_viet_start, "target_end": final_viet_end,
+    }
 
 
 def map_selection_to_source_segment(
@@ -1576,6 +2008,7 @@ def map_selection_to_name_source(
     unit_map: list[dict[str, Any]],
     token_map: list[dict[str, Any]] | None = None,
     translation_mode: str = "server",
+    hanviet_map: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     selected = (selected_text or "").strip()
     source_raw = normalize_newlines(raw_text or "")
@@ -2068,7 +2501,45 @@ def map_selection_to_name_source(
     target_end = int(chosen.get("target_end") or 0)
 
     server_choice: dict[str, Any] | None = None
-    if mode_norm == "server" and chosen_name_exact is None:
+    if mode_norm == TM_TRANSLATE_BETA_MODE and chosen_name_exact is None:
+        chosen_source_text = unit_text_value(
+            chosen,
+            key="source_text",
+            start_key="source_start",
+            end_key="source_end",
+            fallback_text=source_raw,
+        )
+        chosen_target_text = unit_text_value(
+            chosen,
+            key="target_text",
+            start_key="target_start",
+            end_key="target_end",
+            fallback_text=source_trans,
+        )
+        predicted = tm_beta_predict_name_source(
+            chosen_source_text,
+            chosen_target_text,
+            max(0, start - target_start),
+            max(0, end - target_start),
+            hanviet_map,
+            cleaned_set,
+        )
+        if predicted.get("refined") and str(predicted.get("source") or "").strip():
+            predicted_source_start = source_start + int(predicted.get("raw_start") or 0)
+            predicted_source_end = source_start + int(predicted.get("raw_end") or len(chosen_source_text))
+            predicted_target_start = target_start + int(predicted.get("target_start") or 0)
+            predicted_target_end = target_start + int(predicted.get("target_end") or len(chosen_target_text))
+            server_choice = {
+                "source_candidate": str(predicted.get("source") or "").strip(),
+                "target_candidate": str(predicted.get("target") or "").strip() or selected,
+                "source_start": predicted_source_start,
+                "source_end": predicted_source_end,
+                "target_start": predicted_target_start,
+                "target_end": predicted_target_end,
+                "match_type": f"tm_beta_{str(predicted.get('method') or 'prediction')}",
+                "score": 0.98 if "hanviet" in str(predicted.get("method") or "") else 0.96,
+            }
+    if mode_norm in {"server", TM_TRANSLATE_BETA_MODE} and chosen_name_exact is None:
         chosen_target_full = strip_edge_punctuation(
             unit_text_value(
                 chosen,
@@ -2100,7 +2571,7 @@ def map_selection_to_name_source(
             if int(nm.get("end") or 0) > target_start and int(nm.get("start") or 0) < target_end
         ]
         subsegment_choice = try_pick_unit_subsegment(chosen, unit_name_matches)
-        if subsegment_choice is not None:
+        if subsegment_choice is not None and server_choice is None:
             server_choice = {
                 **subsegment_choice,
                 "match_type": "anchored_fragment_cover",
@@ -2294,11 +2765,11 @@ class TranslationAdapter:
         mode_norm = (mode or "server").strip().lower()
         if mode_norm in {"google", "gg", "gg_translate"}:
             mode_norm = "google_translate"
-        if mode_norm not in {"server", "local", "hanviet", "dichngay_local", "vbook_ext", "google_translate"}:
+        if mode_norm not in {"server", TM_TRANSLATE_BETA_MODE, "local", "hanviet", "dichngay_local", "vbook_ext", "google_translate"}:
             mode_norm = "server"
         effective_name_set = (
             self._server_name_set_for_use(name_set_override)
-            if mode_norm in {"server", "google_translate"}
+            if mode_norm in {"server", TM_TRANSLATE_BETA_MODE, "google_translate"}
             else self._name_set_for_use(name_set_override)
         )
         payload: dict[str, Any] = {
@@ -2308,6 +2779,9 @@ class TranslationAdapter:
             "text_norm_version": 9,
             "name_set": effective_name_set,
         }
+        if mode_norm == TM_TRANSLATE_BETA_MODE:
+            payload["tm_translate_script_version"] = "3.5.5.18_beta"
+            payload["text_norm_version"] = 10
         if mode_norm in {"local", "hanviet", "dichngay_local"}:
             local_settings = self._local_settings(mode_norm)
             payload["local_settings"] = local_settings
@@ -2415,6 +2889,178 @@ class TranslationAdapter:
             return True
         return any(ch.isalpha() for ch in value)
 
+    def _translate_tm_beta_detailed(
+        self,
+        source: str,
+        *,
+        name_set_override: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Server beta flow kept in sync with TM Translate.user.js."""
+        source = translator_logic.normalize_text_for_translation(source or "").strip()
+        name_set = self._server_name_set_for_use(name_set_override)
+        settings = self._settings()
+        processed_text, placeholder_map, hits = apply_name_placeholders(source, name_set)
+        source_lines = source.split("\n")
+        processed_lines = processed_text.split("\n")
+        line_rows: list[dict[str, Any]] = []
+        text_tokens: list[str] = []
+        source_cursor = 0
+
+        for line_index, raw_line in enumerate(source_lines):
+            processed_line = processed_lines[line_index] if line_index < len(processed_lines) else raw_line
+            left_size = len(raw_line) - len(raw_line.lstrip())
+            right_size = len(raw_line) - len(raw_line.rstrip())
+            source_start = source_cursor + left_size
+            source_end = source_cursor + len(raw_line) - right_size if right_size else source_cursor + len(raw_line)
+            raw_trimmed = raw_line.strip()
+            processed_trimmed = processed_line.strip()
+            tokens = tokenize_tm_translate_text(processed_trimmed) if processed_trimmed else []
+            token_indexes: list[int] = []
+            for kind, token in tokens:
+                if kind != "text" or not token.strip():
+                    continue
+                token_indexes.append(len(text_tokens))
+                text_tokens.append(token)
+            line_rows.append(
+                {
+                    "line_index": line_index,
+                    "source_text": raw_trimmed,
+                    "processed_source_text": processed_trimmed,
+                    "tokens": tokens,
+                    "token_indexes": token_indexes,
+                    "source_start": source_start,
+                    "source_end": source_end,
+                }
+            )
+            source_cursor += len(raw_line) + (1 if line_index < len(source_lines) - 1 else 0)
+
+        trans_sig = self.translation_signature(mode=TM_TRANSLATE_BETA_MODE, name_set_override=name_set_override)
+        unique_tokens: list[str] = []
+        seen_tokens: set[str] = set()
+        resolved: dict[str, str] = {}
+        for token in text_tokens:
+            key = normalize_translation_cache_source(token)
+            if not key or key in seen_tokens:
+                continue
+            seen_tokens.add(key)
+            if needs_server_translation(key):
+                unique_tokens.append(key)
+            else:
+                resolved[key] = key
+
+        if unique_tokens and self.cache_lookup_batch:
+            try:
+                cached = self.cache_lookup_batch(unique_tokens, TM_TRANSLATE_BETA_MODE, trans_sig)
+            except Exception:
+                cached = {}
+            for raw_key, raw_value in (cached or {}).items():
+                key = normalize_translation_cache_source(raw_key)
+                value = translator_logic.normalize_translated_text(normalize_newlines(raw_value or ""))
+                if key and value:
+                    resolved[key] = value
+
+        missing = [key for key in unique_tokens if key not in resolved]
+        stored_count = 0
+        if missing:
+            translated_list = translator_logic.translate_text_chunks(
+                missing,
+                name_set={},
+                settings=settings,
+                update_progress_callback=None,
+                target_lang="vi",
+            )
+            pending_store: list[tuple[str, str]] = []
+            for index, key in enumerate(missing):
+                translated = normalize_newlines(translated_list[index] if index < len(translated_list) else key)
+                if not translated or translated.startswith("[Lỗi"):
+                    translated = key
+                resolved[key] = translated
+                if self.cache_store_batch and translated != key:
+                    pending_store.append((key, translated))
+            if pending_store and self.cache_store_batch:
+                try:
+                    stored_count = int(self.cache_store_batch(pending_store, TM_TRANSLATE_BETA_MODE, trans_sig) or 0)
+                except Exception:
+                    stored_count = 0
+
+        translated_lines: list[str] = []
+        placeholder_lines: list[str] = []
+        unit_map: list[dict[str, Any]] = []
+        target_cursor = 0
+        for row in line_rows:
+            tokens = row["tokens"]
+            token_indexes = iter(row["token_indexes"])
+            placeholder_parts: list[str] = []
+            for kind, token in tokens:
+                if kind == "text" and token.strip():
+                    token_index = next(token_indexes)
+                    key = normalize_translation_cache_source(text_tokens[token_index])
+                    placeholder_parts.append(resolved.get(key, token))
+                else:
+                    placeholder_parts.append(token)
+            placeholder_line = "".join(placeholder_parts)
+            restored_line = restore_name_placeholders(placeholder_line, placeholder_map)
+            translated_line = capitalize_tm_translate_text(restored_line)
+            placeholder_lines.append(placeholder_line)
+            translated_lines.append(translated_line)
+            if row["source_text"]:
+                source_start = int(row["source_start"])
+                source_end = int(row["source_end"])
+                unit_hits = [
+                    hit for hit in hits
+                    if int(hit.get("start") or -1) < source_end and int(hit.get("end") or -1) > source_start
+                ]
+                unit_map.append(
+                    {
+                        "unit_index": int(row["line_index"]),
+                        "source_text": row["source_text"],
+                        "processed_source_text": row["processed_source_text"],
+                        "target_placeholder_text": placeholder_line,
+                        "target_text": translated_line,
+                        "source_start": source_start,
+                        "source_end": source_end,
+                        "target_start": target_cursor,
+                        "target_end": target_cursor + len(translated_line),
+                        "name_hits": unit_hits,
+                    }
+                )
+            target_cursor += len(translated_line) + (1 if int(row["line_index"]) < len(line_rows) - 1 else 0)
+
+        translated = "\n".join(translated_lines)
+        translated_with_placeholders = "\n".join(placeholder_lines)
+        try:
+            hanviet_source = vbook_local_translate.build_hanviet_text(source, self._local_settings("hanviet"))
+        except Exception:
+            hanviet_source = ""
+        placeholders = [
+            {
+                "placeholder": placeholder,
+                "source": str(data.get("source") or ""),
+                "target": str(data.get("target") or ""),
+            }
+            for placeholder, data in sorted(placeholder_map.items())
+        ]
+        return {
+            "source_text": source,
+            "processed_text": processed_text,
+            "translated_with_placeholders": translated_with_placeholders,
+            "translated": translated or source,
+            "mode": TM_TRANSLATE_BETA_MODE,
+            "unit_map": unit_map,
+            "token_map": [],
+            "name_map": {
+                "active_set": str(self.active_set_name or "Mặc định"),
+                "version": int(self.name_set_version or 1),
+                "size": len(name_set),
+                "placeholders": placeholders,
+                "hits": hits,
+            },
+            "hanviet_source": hanviet_source,
+            "cache_hit_count": len(unique_tokens) - len(missing),
+            "missing_count": len(missing),
+            "stored_count": stored_count,
+        }
+
     def translate_detailed(
         self,
         text: str,
@@ -2428,7 +3074,7 @@ class TranslationAdapter:
         mode_norm = (mode or "server").strip().lower()
         if mode_norm in {"google", "gg", "gg_translate"}:
             mode_norm = "google_translate"
-        if mode_norm not in {"server", "local", "hanviet", "dichngay_local", "vbook_ext", "google_translate"}:
+        if mode_norm not in {"server", TM_TRANSLATE_BETA_MODE, "local", "hanviet", "dichngay_local", "vbook_ext", "google_translate"}:
             mode_norm = "server"
 
         def _log(status: str, **fields: Any) -> None:
@@ -2465,10 +3111,26 @@ class TranslationAdapter:
                 "hanviet_source": "",
             }
 
+        if mode_norm == TM_TRANSLATE_BETA_MODE:
+            detail = self._translate_tm_beta_detailed(source, name_set_override=name_set_override)
+            _log(
+                "ok",
+                translated_len=len(str(detail.get("translated") or "")),
+                unit_count=len(detail.get("unit_map") or []),
+                token_count=0,
+                name_hit_count=len((detail.get("name_map") or {}).get("hits") or []),
+                name_set_size=int((detail.get("name_map") or {}).get("size") or 0),
+                vp_set_size=0,
+                cache_hit_count=int(detail.pop("cache_hit_count", 0) or 0),
+                missing_count=int(detail.pop("missing_count", 0) or 0),
+                stored_count=int(detail.pop("stored_count", 0) or 0),
+            )
+            return detail
+
         settings = self._settings()
         name_set = (
             self._server_name_set_for_use(name_set_override)
-            if mode_norm in {"server", "google_translate"}
+            if mode_norm in {"server", TM_TRANSLATE_BETA_MODE, "google_translate"}
             else self._name_set_for_use(name_set_override)
         )
         vp_set = normalize_name_set(vp_set_override or {})

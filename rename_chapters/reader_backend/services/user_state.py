@@ -9,6 +9,7 @@ HANVIET_MODE = "hanviet"
 HANVIET_BASE_DIR = SIMULATED_LOCAL_BASE_DIR
 VBOOK_EXT_MODE = "vbook_ext"
 GOOGLE_TRANSLATE_MODE = "google_translate"
+TM_TRANSLATE_BETA_MODE = "tm_translate_beta"
 
 
 def _normalize_simulated_local_payload(raw: Any) -> dict[str, Any]:
@@ -53,9 +54,9 @@ def normalize_translate_mode(value: Any, default: str = "server") -> str:
     mode = str(value or "").strip().lower()
     if mode in {"google", "google_translate", "gg_translate", "gg"}:
         return GOOGLE_TRANSLATE_MODE
-    if mode in {"server", "local", HANVIET_MODE, SIMULATED_LOCAL_MODE, VBOOK_EXT_MODE, GOOGLE_TRANSLATE_MODE}:
+    if mode in {"server", TM_TRANSLATE_BETA_MODE, "local", HANVIET_MODE, SIMULATED_LOCAL_MODE, VBOOK_EXT_MODE, GOOGLE_TRANSLATE_MODE}:
         return mode
-    if default in {"local", HANVIET_MODE, SIMULATED_LOCAL_MODE, VBOOK_EXT_MODE, GOOGLE_TRANSLATE_MODE}:
+    if default in {TM_TRANSLATE_BETA_MODE, "local", HANVIET_MODE, SIMULATED_LOCAL_MODE, VBOOK_EXT_MODE, GOOGLE_TRANSLATE_MODE}:
         return default
     return "server"
 

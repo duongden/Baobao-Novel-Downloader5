@@ -149,7 +149,7 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
         translate_mode = (payload.get("translation_mode") or "local").strip().lower()
         if translate_mode in {"google", "gg", "gg_translate"}:
             translate_mode = "google_translate"
-        if translate_mode not in {"local", "server", "hanviet", "dichngay_local", "vbook_ext", "google_translate"}:
+        if translate_mode not in {"local", "server", "tm_translate_beta", "hanviet", "dichngay_local", "vbook_ext", "google_translate"}:
             translate_mode = "local"
         override_name_set = payload.get("name_set")
         if override_name_set is not None and not isinstance(override_name_set, dict):

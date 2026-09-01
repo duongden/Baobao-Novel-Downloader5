@@ -51,6 +51,7 @@ const LOCAL_TRANSLATION_DEFAULT = {
   use_luat_nhan: true,
 };
 const SIM_LOCAL_TRANSLATION_MODE = "dichngay_local";
+const TM_TRANSLATE_BETA_MODE = "tm_translate_beta";
 const VBOOK_EXT_TRANSLATION_MODE = "vbook_ext";
 const GOOGLE_TRANSLATE_MODE = "google_translate";
 const VBOOK_EXT_TRANSLATION_DEFAULT = {
@@ -516,6 +517,15 @@ function insertMarkupAfter(referenceNode, markup) {
 function ensureSettingsEnhancements(settingsForm, { bookScopedTranslation = false } = {}) {
   if (!settingsForm) return;
   const translationModeSelect = qs("translation-mode-select");
+  if (translationModeSelect && !translationModeSelect.querySelector(`option[value="${TM_TRANSLATE_BETA_MODE}"]`)) {
+    const opt = document.createElement("option");
+    opt.id = "translation-mode-tm-beta";
+    opt.value = TM_TRANSLATE_BETA_MODE;
+    opt.textContent = t("translationModeTmTranslateBeta");
+    const serverOption = translationModeSelect.querySelector('option[value="server"]');
+    if (serverOption) serverOption.insertAdjacentElement("afterend", opt);
+    else translationModeSelect.appendChild(opt);
+  }
   if (translationModeSelect && !translationModeSelect.querySelector(`option[value="${VBOOK_EXT_TRANSLATION_MODE}"]`)) {
     const opt = document.createElement("option");
     opt.id = "translation-mode-vbook-ext";
@@ -887,6 +897,7 @@ function normalizePanelTransparency(value) {
 
 function normalizeTranslationMode(value) {
   const mode = String(value || "").trim().toLowerCase();
+  if (mode === TM_TRANSLATE_BETA_MODE) return TM_TRANSLATE_BETA_MODE;
   if (mode === "local") return "local";
   if (mode === SIM_LOCAL_TRANSLATION_MODE) return SIM_LOCAL_TRANSLATION_MODE;
   if (mode === "hanviet") return "hanviet";
@@ -1689,6 +1700,7 @@ const CACHE_MANAGER_PAGE_SIZE = 24;
 function cacheManagerModeLabel(mode) {
   const key = String(mode || "").trim().toLowerCase();
   if (key === "server") return "Server";
+  if (key === TM_TRANSLATE_BETA_MODE) return "TM Translate (beta)";
   if (key === "local") return "Local";
   if (key === "dichngay_local") return "Mô phỏng";
   if (key === "hanviet") return "Hán Việt";
@@ -2312,6 +2324,7 @@ function fillStaticTexts() {
     ["translation-enabled-off", "translationEnabledOff"],
     ["label-translation-mode", "translationMode"],
     ["translation-mode-server", "translationModeServer"],
+    ["translation-mode-tm-beta", "translationModeTmTranslateBeta"],
     ["translation-mode-local", "translationModeLocal"],
     ["translation-mode-dichngay-local", "translationModeDichNgayLocal"],
     ["translation-mode-hanviet", "translationModeHanviet"],
@@ -3896,7 +3909,9 @@ export async function initShell({ page, onSearchSubmit, onImported, onImportUrl,
       else localSectionLegend.textContent = t("localTranslateSettingsLocal");
     }
     if (localSection) localSection.hidden = !(state.settings.translationEnabled && isLocalLikeTranslationMode(activeMode));
-    if (serverTranslateSection) serverTranslateSection.hidden = !(state.settings.translationEnabled && activeMode === "server");
+    if (serverTranslateSection) serverTranslateSection.hidden = !(
+      state.settings.translationEnabled && ["server", TM_TRANSLATE_BETA_MODE].includes(activeMode)
+    );
     if (vbookTranslateSection) vbookTranslateSection.hidden = !(state.settings.translationEnabled && activeMode === VBOOK_EXT_TRANSLATION_MODE);
     syncServerTranslationForm();
     syncLocalTranslationForm();

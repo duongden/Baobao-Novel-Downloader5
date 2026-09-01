@@ -714,7 +714,8 @@ function syncModeButtons() {
   if (refs.btnModeRaw) refs.btnModeRaw.classList.toggle("active", state.mode === "raw");
   if (refs.btnModeTrans) refs.btnModeTrans.classList.toggle("active", state.mode === "trans");
   if (refs.btnTranslateMode && state.shell) {
-    if (state.translateMode === "local") refs.btnTranslateMode.textContent = state.shell.t("modeLocal");
+    if (state.translateMode === "tm_translate_beta") refs.btnTranslateMode.textContent = state.shell.t("modeTmTranslateBeta");
+    else if (state.translateMode === "local") refs.btnTranslateMode.textContent = state.shell.t("modeLocal");
     else if (state.translateMode === "dichngay_local") refs.btnTranslateMode.textContent = state.shell.t("modeDichNgayLocal");
     else if (state.translateMode === "hanviet") refs.btnTranslateMode.textContent = state.shell.t("modeHanviet");
     else if (state.translateMode === "vbook_ext") refs.btnTranslateMode.textContent = state.shell.t("modeVbookExt");
@@ -8840,7 +8841,8 @@ async function init() {
   refs.btnModeRaw.addEventListener("click", () => switchMode("raw"));
   refs.btnModeTrans.addEventListener("click", () => switchMode("trans"));
   refs.btnTranslateMode.addEventListener("click", async () => {
-    if (state.translateMode === "server") state.translateMode = "local";
+    if (state.translateMode === "server") state.translateMode = "tm_translate_beta";
+    else if (state.translateMode === "tm_translate_beta") state.translateMode = "local";
     else if (state.translateMode === "local") state.translateMode = "dichngay_local";
     else if (state.translateMode === "dichngay_local") state.translateMode = "hanviet";
     else if (state.translateMode === "hanviet") state.translateMode = "vbook_ext";
@@ -8848,7 +8850,8 @@ async function init() {
     else state.translateMode = "server";
     clearChapterCache();
     cancelPrefetch();
-    if (state.translateMode === "local") refs.btnTranslateMode.textContent = state.shell.t("modeLocal");
+    if (state.translateMode === "tm_translate_beta") refs.btnTranslateMode.textContent = state.shell.t("modeTmTranslateBeta");
+    else if (state.translateMode === "local") refs.btnTranslateMode.textContent = state.shell.t("modeLocal");
     else if (state.translateMode === "dichngay_local") refs.btnTranslateMode.textContent = state.shell.t("modeDichNgayLocal");
     else if (state.translateMode === "hanviet") refs.btnTranslateMode.textContent = state.shell.t("modeHanviet");
     else if (state.translateMode === "vbook_ext") refs.btnTranslateMode.textContent = state.shell.t("modeVbookExt");

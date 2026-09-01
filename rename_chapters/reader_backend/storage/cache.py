@@ -6,7 +6,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-_CACHE_TRANSLATION_MODES = ("server", "local", "dichngay_local", "hanviet", "google_translate")
+_CACHE_TRANSLATION_MODES = ("server", "tm_translate_beta", "local", "dichngay_local", "hanviet", "google_translate")
 
 
 def normalize_cache_translation_mode(value: Any) -> str:

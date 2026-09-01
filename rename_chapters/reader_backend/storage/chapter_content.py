@@ -362,12 +362,12 @@ def get_chapter_text(
             if map_count > 0:
                 cached_text = normalize_newlines(cached)
                 if not (
-                    str(translate_mode or "").strip().lower() == "server"
+                    str(translate_mode or "").strip().lower() in {"server", "tm_translate_beta"}
                     and _looks_suspicious_server_translation(source_for_translation, cached_text)
                 ):
                     return cached_text
 
-    if trans_key and trans_sig and trans_sig != current_sig and str(translate_mode or "").strip().lower() == "server":
+    if trans_key and trans_sig and trans_sig != current_sig and str(translate_mode or "").strip().lower() in {"server", "tm_translate_beta"}:
         old_cached = storage.read_cache(trans_key)
         old_unit_map = storage.get_translation_unit_map(chapter["chapter_id"], trans_sig, translate_mode)
         old_base_sig = _base_sig_from_chapter_trans_sig(trans_sig)
