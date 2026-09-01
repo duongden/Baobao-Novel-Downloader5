@@ -50,6 +50,7 @@ class WikidichMixin:
         initial_filtered = getattr(self, "wikidich_filtered", [])
         initial_new = dict(self.wd_new_chapters)
         initial_new_cache = dict(getattr(self, "wd_new_chapter_cache", {}) or {})
+        initial_fanqie_chapter_cache = dict(getattr(self, "wd_fanqie_chapter_cache", {}) or {})
         self._wd_autoupdate_version = 1
         self._wd_autoupdate_marked_ids = []
         self._wd_autoupdate_history_entries = []
@@ -65,6 +66,7 @@ class WikidichMixin:
                 self.wikidich_filtered = []
                 self.wd_new_chapters = {}
                 self.wd_new_chapter_cache = {}
+                self.wd_fanqie_chapter_cache = {}
             tab = ttk.Frame(self.notebook, padding="10")
             self._wd_tabs[site] = tab
             tab_label = "Koanchay" if site == "koanchay" else "Wikidich"
@@ -83,6 +85,7 @@ class WikidichMixin:
 
         self.wd_new_chapters = initial_new
         self.wd_new_chapter_cache = initial_new_cache
+        self.wd_fanqie_chapter_cache = initial_fanqie_chapter_cache
         # Initialize filter store from config
         wd_cfg = getattr(self, "app_config", {}).get("wikidich", {})
         kc_cfg = getattr(self, "app_config", {}).get("koanchay", {})
@@ -674,6 +677,41 @@ class WikidichMixin:
         self.wd_volume_names_text.grid(row=1, column=0, sticky="nsew")
         self._wd_make_text_readonly(self.wd_volume_names_text)
 
+        fanqie_chapter_frame = ttk.LabelFrame(detail_frame, text="Danh sách chương Fanqie (tiếng Trung)", padding=6)
+        fanqie_chapter_frame.grid(row=5, column=0, columnspan=2, sticky="nsew", pady=(8, 0))
+        fanqie_chapter_frame.columnconfigure(0, weight=1)
+        fanqie_chapter_frame.rowconfigure(1, weight=1)
+        self.wd_fanqie_chapter_status_var = tk.StringVar(value="Chọn truyện có link Fanqie để xem cache mục lục.")
+        ttk.Label(
+            fanqie_chapter_frame,
+            textvariable=self.wd_fanqie_chapter_status_var,
+            anchor="w",
+        ).grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 4))
+        self.wd_fanqie_chapter_tree = ttk.Treeview(
+            fanqie_chapter_frame,
+            columns=("num", "title", "character_count", "state"),
+            show="headings",
+            height=10,
+            selectmode="browse",
+        )
+        self.wd_fanqie_chapter_tree.heading("num", text="STT")
+        self.wd_fanqie_chapter_tree.heading("title", text="Tên chương tiếng Trung")
+        self.wd_fanqie_chapter_tree.heading("character_count", text="Số ký tự")
+        self.wd_fanqie_chapter_tree.heading("state", text="Trạng thái")
+        self.wd_fanqie_chapter_tree.column("num", width=58, minwidth=48, anchor="center", stretch=False)
+        self.wd_fanqie_chapter_tree.column("title", width=440, minwidth=220, anchor="w")
+        self.wd_fanqie_chapter_tree.column("character_count", width=100, minwidth=80, anchor="e", stretch=False)
+        self.wd_fanqie_chapter_tree.column("state", width=120, minwidth=100, anchor="center", stretch=False)
+        self.wd_fanqie_chapter_tree.tag_configure("changed", foreground="#dc2626")
+        self.wd_fanqie_chapter_tree.grid(row=1, column=0, sticky="nsew")
+        fanqie_chapter_scroll = ttk.Scrollbar(
+            fanqie_chapter_frame,
+            orient="vertical",
+            command=self.wd_fanqie_chapter_tree.yview,
+        )
+        self.wd_fanqie_chapter_tree.configure(yscrollcommand=fanqie_chapter_scroll.set)
+        fanqie_chapter_scroll.grid(row=1, column=1, sticky="ns")
+
         tree_frame = ttk.Frame(main_pane)
         main_pane.add(tree_frame, weight=2)
         tree_frame.columnconfigure(0, weight=1)
@@ -703,6 +741,7 @@ class WikidichMixin:
         self.wd_tree.tag_configure("server_lower", foreground="#f97316")
         self.wd_tree.tag_configure("auto_marked_new", foreground="#38bdf8")
         self.wd_tree.tag_configure("origin_completed", foreground="#7c3aed")
+        self.wd_tree.tag_configure("fanqie_changed", foreground="#db2777")
         self.wd_tree.grid(row=0, column=0, sticky="nsew")
         self.wd_tree.bind("<<TreeviewSelect>>", self._wd_on_select)
         self._wd_tree_fit_job = None
@@ -788,6 +827,7 @@ class WikidichMixin:
             "wd_author_entry", "wd_status_entry", "wd_updated_entry", "wd_chapters_entry",
             "wd_cover_label", "wd_detail_canvas", "wd_detail_scope_var", "wd_missing_only_var",
             "wd_scan_volume_names_var", "wd_volume_name_var", "wd_volume_names_var", "wd_volume_names_text",
+            "wd_fanqie_chapter_status_var", "wd_fanqie_chapter_tree",
             "wd_cover_label", "wd_detail_canvas", "wd_detail_scope_var", "wd_missing_only_var",
             "wd_auto_update_btn", "wd_edit_book_btn", "wd_chapter_list_btn",
             "wd_update_button", "wd_note_button", "wd_delete_button", "wd_profile_var"
@@ -1598,6 +1638,8 @@ class WikidichMixin:
             high_thresh = 50
         high_thresh = max(1, high_thresh)
         high_color = (cfg.get("wiki_high_new_color") or "#dc2626").strip() or "#dc2626"
+        if self._wd_highlight_color_conflict(high_color):
+            high_color = "#dc2626"
         return high_thresh, high_color
 
     def _wd_get_row_color_map(self):
@@ -1609,7 +1651,20 @@ class WikidichMixin:
             "auto_marked_new": "#38bdf8",
             "has_new": "#16a34a",
             "origin_completed": "#7c3aed",
+            "fanqie_changed": "#db2777",
         }
+
+    def _wd_highlight_color_conflict(self, color: str):
+        normalized = str(color or "").strip().lower()
+        reserved = {
+            "#ef4444": "truyện nghi bị xóa",
+            "#f97316": "server nhỏ hơn local",
+            "#38bdf8": "Auto Update có chương mới",
+            "#16a34a": "có chương mới",
+            "#7c3aed": "truyện gốc đã hoàn thành",
+            "#db2777": "chương Fanqie đã thay đổi",
+        }
+        return reserved.get(normalized)
 
     def _wd_normalize_origin_status(self, raw_status):
         if raw_status is True:
@@ -1919,6 +1974,8 @@ class WikidichMixin:
             return "not_found"
         if book.get("server_lower"):
             return "server_lower"
+        if self._wd_book_has_changed_fanqie_chapters(book):
+            return "fanqie_changed"
         if high_thresh is None:
             high_thresh, _ = self._wd_get_high_new_style()
         new_value = None
@@ -1954,6 +2011,7 @@ class WikidichMixin:
             "auto_marked_new": 0,
             "has_new": 0,
             "origin_completed": 0,
+            "fanqie_changed": 0,
             "default": 0,
         }
         for book in books:
@@ -1983,6 +2041,13 @@ class WikidichMixin:
                 "detail": "Số chương hoặc ngày cập nhật trên site hiện tại nhỏ hơn dữ liệu local, nên app giữ local và tô màu cảnh báo.",
                 "color": color_map["server_lower"],
                 "count": counts["server_lower"],
+            },
+            {
+                "tag": "fanqie_changed",
+                "title": "Có chương Fanqie thay đổi số ký tự",
+                "detail": "Ít nhất một chương Fanqie có số ký tự khác lần lấy trước. Các chương đó được đưa lên đầu bảng mục lục tiếng Trung và ghi 'Đã thay đổi'.",
+                "color": color_map["fanqie_changed"],
+                "count": counts["fanqie_changed"],
             },
             {
                 "tag": "high_new",
@@ -2025,6 +2090,7 @@ class WikidichMixin:
         try:
             self.wd_tree.tag_configure("high_new", foreground=high_color)
             self.wd_tree.tag_configure("origin_completed", foreground=self._wd_get_row_color_map()["origin_completed"])
+            self.wd_tree.tag_configure("fanqie_changed", foreground=self._wd_get_row_color_map()["fanqie_changed"])
         except Exception:
             pass
 
@@ -2091,6 +2157,7 @@ class WikidichMixin:
             self._wd_set_text_content(self.wd_title_text, "Chưa có dữ liệu phù hợp")
             self._wd_set_text_content(self.wd_summary_text, "")
             self._wd_update_volume_names_panel(None)
+            self._wd_update_fanqie_chapter_panel(None)
             self.wd_links_listbox.delete(0, tk.END)
             self.wd_current_links = []
             self.wd_info_vars['author'].set("")
@@ -2256,6 +2323,7 @@ class WikidichMixin:
             self.wd_info_vars['collections'].set("")
             self.wd_info_vars['flags'].set("")
             self._wd_update_volume_names_panel(None)
+            self._wd_update_fanqie_chapter_panel(None)
             self._wd_update_update_button_state()
             self._wd_update_delete_button_state()
             if hasattr(self, "wd_add_lib_btn"):
@@ -2301,6 +2369,7 @@ class WikidichMixin:
         self._wd_set_text_content(self.wd_flags_text, flags_text)
         self._wd_set_text_content(self.wd_summary_text, book.get('summary', ''))
         self._wd_update_volume_names_panel(book)
+        self._wd_update_fanqie_chapter_panel(book)
         self.wd_links_listbox.delete(0, tk.END)
         self.wd_current_links = book.get('extra_links', [])
         for link in self.wd_current_links:
@@ -2356,6 +2425,63 @@ class WikidichMixin:
         if hasattr(self, "wd_volume_names_var"):
             self.wd_volume_names_var.set("Chưa có dữ liệu tên quyển (bật quét khi Tải chi tiết).")
         self._wd_set_text_content(self.wd_volume_names_text, "")
+
+    def _wd_update_fanqie_chapter_panel(self, book: Optional[dict]):
+        tree = getattr(self, "wd_fanqie_chapter_tree", None)
+        status_var = getattr(self, "wd_fanqie_chapter_status_var", None)
+        if tree is None or status_var is None:
+            return
+        try:
+            tree.delete(*tree.get_children())
+        except Exception:
+            return
+        if not isinstance(book, dict):
+            status_var.set("Chọn truyện có link Fanqie để xem cache mục lục.")
+            return
+        fanqie_url = self._wd_get_fanqie_link(book) or ""
+        if not fanqie_url:
+            status_var.set("Truyện này không có link Fanqie.")
+            return
+        entry = self._wd_get_fanqie_chapter_cache_entry(book)
+        if not entry:
+            status_var.set("Chưa có cache. Chạy Kiểm tra cập nhật hoặc Auto Update để lấy mục lục qua bridge.")
+            return
+        chapters = [dict(ch) for ch in (entry.get("chapters") or []) if isinstance(ch, dict)]
+        chapters.sort(key=lambda ch: (0 if ch.get("changed") else 1, int(ch.get("num") or 0)))
+        changed_count = sum(1 for ch in chapters if ch.get("changed"))
+        checked_text = str(entry.get("checked_at") or "").replace("T", " ")[:19]
+        summary = f"{len(chapters)} chương đã cache"
+        if checked_text:
+            summary += f" • lấy lúc {checked_text}"
+        if changed_count:
+            summary += f" • {changed_count} chương đã thay đổi được đưa lên đầu"
+        status_var.set(summary)
+        for chapter in chapters:
+            changed = bool(chapter.get("changed"))
+            try:
+                character_count = max(0, int(chapter.get("character_count") or 0))
+            except Exception:
+                character_count = 0
+            state_text = ""
+            if changed:
+                try:
+                    previous_count = max(0, int(chapter.get("previous_character_count") or 0))
+                except Exception:
+                    previous_count = 0
+                state_text = "Đã thay đổi"
+                if previous_count:
+                    state_text += f" ({previous_count:,} → {character_count:,})"
+            tree.insert(
+                "",
+                "end",
+                tags=("changed",) if changed else (),
+                values=(
+                    chapter.get("num") or "",
+                    chapter.get("title") or "",
+                    f"{character_count:,}" if character_count else "",
+                    state_text,
+                ),
+            )
 
     def _wd_open_link(self, url: str):
         url = (url or "").strip()
@@ -7104,6 +7230,7 @@ class WikidichMixin:
             "filtered": list(getattr(self, "wikidich_filtered", []) or []),
             "new_chapters": dict(getattr(self, "wd_new_chapters", {}) or {}),
             "new_chapter_cache": dict(getattr(self, "wd_new_chapter_cache", {}) or {}),
+            "fanqie_chapter_cache": dict(getattr(self, "wd_fanqie_chapter_cache", {}) or {}),
             "pending_categories": list(getattr(self, "_wd_pending_categories", []) or []),
             "category_options": list(getattr(self, "_wd_category_options", []) or []),
             "all_category_options": list(getattr(self, "_wd_all_category_options", []) or []),
@@ -7133,6 +7260,7 @@ class WikidichMixin:
         self.wikidich_filtered = list(state.get("filtered", []))
         self.wd_new_chapters = dict(state.get("new_chapters", {}))
         self.wd_new_chapter_cache = dict(state.get("new_chapter_cache", {}))
+        self.wd_fanqie_chapter_cache = dict(state.get("fanqie_chapter_cache", {}))
         self._wd_pending_categories = list(state.get("pending_categories", []))
         self._wd_category_options = list(state.get("category_options", []))
         self._wd_all_category_options = list(state.get("all_category_options", []))
@@ -7600,7 +7728,125 @@ class WikidichMixin:
         url = str(item.get("url") or "").strip()
         if not url and cid:
             url = f"https://fanqienovel.com/reader/{cid}"
-        return {"num": idx, "id": cid, "title": title, "url": url}
+        raw_count = (
+            item.get("character_count")
+            if item.get("character_count") is not None
+            else item.get("chapter_word_number")
+        )
+        if raw_count is None:
+            raw_count = item.get("chapterWordNumber")
+        if raw_count is None:
+            raw_count = item.get("word_count")
+        if raw_count is None:
+            raw_count = item.get("word_number")
+        count_match = re.search(r"\d+", str(raw_count or "").replace(",", ""))
+        character_count = int(count_match.group(0)) if count_match else 0
+        normalized = {
+            "num": idx,
+            "id": cid,
+            "title": title,
+            "url": url,
+            "character_count": max(0, character_count),
+        }
+        if item.get("changed"):
+            normalized["changed"] = True
+        try:
+            previous_count = max(0, int(item.get("previous_character_count") or 0))
+        except Exception:
+            previous_count = 0
+        if previous_count:
+            normalized["previous_character_count"] = previous_count
+        return normalized
+
+    def _wd_update_fanqie_chapter_cache(self, fanqie_book_id: str, fanqie_url: str, toc: list) -> list:
+        fanqie_book_id = str(fanqie_book_id or "").strip()
+        if not fanqie_book_id or not isinstance(toc, list) or not toc:
+            return []
+        normalized = [
+            self._wd_normalize_fanqie_toc_item(item, idx)
+            for idx, item in enumerate(toc, start=1)
+            if isinstance(item, dict)
+        ]
+        if not normalized:
+            return []
+        if not isinstance(getattr(self, "wd_fanqie_chapter_cache", None), dict):
+            self.wd_fanqie_chapter_cache = {}
+        old_entry = self.wd_fanqie_chapter_cache.get(fanqie_book_id) or {}
+        old_chapters = old_entry.get("chapters") if isinstance(old_entry, dict) else []
+        old_counts = {}
+        for old in old_chapters or []:
+            if not isinstance(old, dict):
+                continue
+            old_id = str(old.get("id") or "").strip()
+            try:
+                old_count = max(0, int(old.get("character_count") or 0))
+            except Exception:
+                old_count = 0
+            if old_id:
+                old_counts[old_id] = old_count
+
+        changed_count = 0
+        for chapter in normalized:
+            chapter_id = str(chapter.get("id") or "").strip()
+            current_count = int(chapter.get("character_count") or 0)
+            previous_count = old_counts.get(chapter_id, 0)
+            changed = bool(previous_count > 0 and current_count > 0 and previous_count != current_count)
+            chapter["changed"] = changed
+            if changed:
+                chapter["previous_character_count"] = previous_count
+                changed_count += 1
+            else:
+                chapter.pop("previous_character_count", None)
+
+        checked_at = datetime.utcnow().isoformat()
+        self.wd_fanqie_chapter_cache[fanqie_book_id] = {
+            "source": "fanqie_bridge",
+            "book_id": fanqie_book_id,
+            "url": str(fanqie_url or "").strip(),
+            "checked_at": checked_at,
+            "changed_count": changed_count,
+            "chapters": normalized,
+        }
+        return normalized
+
+    def _wd_get_fanqie_chapter_cache_entry(self, book: Optional[dict]):
+        if not isinstance(book, dict):
+            return None
+        fanqie_url = self._wd_get_fanqie_link(book) or ""
+        fanqie_book_id = self._wd_fanqie_book_id_from_url(fanqie_url)
+        cache_map = getattr(self, "wd_fanqie_chapter_cache", {}) or {}
+        entry = cache_map.get(fanqie_book_id) if fanqie_book_id and isinstance(cache_map, dict) else None
+        return entry if isinstance(entry, dict) else None
+
+    def _wd_book_has_changed_fanqie_chapters(self, book: dict) -> bool:
+        entry = self._wd_get_fanqie_chapter_cache_entry(book)
+        if not entry:
+            return False
+        try:
+            if int(entry.get("changed_count") or 0) > 0:
+                return True
+        except Exception:
+            pass
+        return any(bool(ch.get("changed")) for ch in (entry.get("chapters") or []) if isinstance(ch, dict))
+
+    def _wd_fetch_fanqie_toc_from_bridge(self, fanqie_book_id: str) -> list:
+        ensure_bridge = getattr(self, "_ensure_fanqie_bridge_ready", None)
+        bridge_url = getattr(self, "_fanqie_bridge_url", None)
+        if not callable(ensure_bridge) or not callable(bridge_url):
+            return []
+        if not ensure_bridge():
+            raise RuntimeError("không khởi chạy được fanqie_bridge_win.exe")
+        response = requests.get(
+            bridge_url("/api/toc"),
+            params={"book_id": str(fanqie_book_id)},
+            timeout=40,
+        )
+        response.raise_for_status()
+        payload = response.json() if response.content else {}
+        if not isinstance(payload, dict) or payload.get("ok") is False:
+            raise RuntimeError(str((payload or {}).get("error") or "bridge trả dữ liệu mục lục không hợp lệ"))
+        data = payload.get("data")
+        return data if isinstance(data, list) else []
 
     def _wd_calculate_new_chapters_with_cache(self, book: dict, proxies=None, headers=None):
         fanqie_url = self._wd_find_link_with_domain(book, "fanqienovel.com")
@@ -7713,7 +7959,18 @@ class WikidichMixin:
                 if not title:
                     continue
                 cid = chapter.get("itemId") or chapter.get("item_id") or chapter.get("chapterId") or chapter.get("chapter_id")
-                toc.append({"num": len(toc) + 1, "id": str(cid or len(toc) + 1), "title": title})
+                toc.append({
+                    "num": len(toc) + 1,
+                    "id": str(cid or len(toc) + 1),
+                    "title": title,
+                    "character_count": (
+                        chapter.get("characterCount")
+                        or chapter.get("character_count")
+                        or chapter.get("chapterWordNumber")
+                        or chapter.get("chapter_word_number")
+                        or 0
+                    ),
+                })
         return toc
 
     def _wd_fetch_fanqie_toc(self, fanqie_url: str, proxies=None, headers=None) -> list:
@@ -7736,16 +7993,26 @@ class WikidichMixin:
                 if v:
                     merged_headers[k] = v
 
-        # Ưu tiên logic ND5: parse TOC từ page.
+        # Ưu tiên bridge local; bridge tự được bật nếu chưa chạy.
+        try:
+            toc = self._wd_fetch_fanqie_toc_from_bridge(str(book_id))
+            if isinstance(toc, list) and toc:
+                normalized = self._wd_update_fanqie_chapter_cache(str(book_id), fanqie_url, toc)
+                if normalized:
+                    return normalized
+        except Exception as exc:
+            self.log(f"[Wikidich] Fanqie bridge TOC lỗi, fallback web: {exc}")
+
+        # Fallback 1: parse TOC từ page Fanqie.
         try:
             if hasattr(self, "_fanqie_fetch_toc"):
                 toc = self._fanqie_fetch_toc(book_id, proxies=proxies, headers=merged_headers)
                 if isinstance(toc, list) and toc:
-                    return toc
+                    return [self._wd_normalize_fanqie_toc_item(item, idx) for idx, item in enumerate(toc, start=1)]
         except Exception as exc:
-            self.log(f"[Wikidich] Fanqie ND5 HTML TOC lỗi: {exc}")
+            self.log(f"[Wikidich] Fanqie web HTML TOC lỗi: {exc}")
 
-        # Fallback flow mới: API directory/detail.
+        # Fallback 2: API web directory/detail.
         try:
             api_url = f"https://fanqienovel.com/api/reader/directory/detail?bookId={book_id}"
             if hasattr(self, "_fanqie_request_with_retry"):
@@ -7756,9 +8023,9 @@ class WikidichMixin:
             payload = resp.json()
             toc = self._wd_parse_fanqie_toc_from_api_payload(payload)
             if isinstance(toc, list) and toc:
-                return toc
+                return [self._wd_normalize_fanqie_toc_item(item, idx) for idx, item in enumerate(toc, start=1)]
         except Exception as exc:
-            self.log(f"[Wikidich] Fanqie ND5 API TOC lỗi: {exc}")
+            self.log(f"[Wikidich] Fanqie web API TOC lỗi: {exc}")
         return []
 
     def _wd_fetch_fanqie_chapter_count(self, fanqie_url: str, proxies=None, headers=None):
@@ -8021,6 +8288,7 @@ class WikidichMixin:
             self.wikidich_data = cached
             self.wd_new_chapters = dict(cached.get("_new_chapters") or {})
             self.wd_new_chapter_cache = dict(cached.get("_new_chapter_cache") or {})
+            self.wd_fanqie_chapter_cache = dict(cached.get("_fanqie_chapter_cache") or {})
             domain_changed = self._wd_rewrite_cached_domains_if_needed()
             if domain_changed > 0:
                 self.log(f"[Wikidich] Đã cập nhật {domain_changed} URL theo domain cài đặt.")
@@ -8031,6 +8299,7 @@ class WikidichMixin:
             self.wikidich_filtered = []
             self.wd_new_chapters = {}
             self.wd_new_chapter_cache = {}
+            self.wd_fanqie_chapter_cache = {}
         self._wd_update_user_label()
         self._wd_refresh_category_options()
         self._wd_apply_filters()
@@ -8044,6 +8313,7 @@ class WikidichMixin:
             if self.wikidich_data.get('book_ids'):
                 self.wikidich_data["_new_chapters"] = dict(getattr(self, "wd_new_chapters", {}) or {})
                 self.wikidich_data["_new_chapter_cache"] = dict(getattr(self, "wd_new_chapter_cache", {}) or {})
+                self.wikidich_data["_fanqie_chapter_cache"] = dict(getattr(self, "wd_fanqie_chapter_cache", {}) or {})
                 wikidich_ext.save_cache(self._wd_get_cache_path(), self.wikidich_data)
         except Exception as e:
             self.log(f"[Wikidich] Không thể lưu cache: {e}")
@@ -8843,6 +9113,14 @@ class WikidichMixin:
             initial = high_new_color_var.get()
             result = colorchooser.askcolor(color=initial, title="Chọn màu highlight", parent=win)
             if result and result[1]:
+                conflict = self._wd_highlight_color_conflict(result[1])
+                if conflict:
+                    messagebox.showerror(
+                        "Màu bị trùng",
+                        f"Màu này đang dành cho trạng thái '{conflict}'. Vui lòng chọn màu khác.",
+                        parent=win,
+                    )
+                    return
                 high_new_color_var.set(result[1])
                 color_preview.configure(bg=result[1])
         
@@ -8981,6 +9259,14 @@ class WikidichMixin:
                 high_color_val = high_new_color_var.get()
             except Exception:
                 messagebox.showerror("Lỗi", "Giá trị số không hợp lệ.", parent=win)
+                return
+            color_conflict = self._wd_highlight_color_conflict(high_color_val)
+            if color_conflict:
+                messagebox.showerror(
+                    "Màu bị trùng",
+                    f"Màu Highlight đang trùng màu '{color_conflict}'. Vui lòng chọn màu khác.",
+                    parent=win,
+                )
                 return
             if wiki_min_val < 0 or wiki_max_val < 0 or fanqie_min_val < 0 or fanqie_max_val < 0:
                 messagebox.showerror("Lỗi", "Độ trễ không được âm.", parent=win)
