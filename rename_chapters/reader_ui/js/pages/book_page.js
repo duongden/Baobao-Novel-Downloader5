@@ -1,6 +1,6 @@
-import { initShell } from "../site_common.js?v=20260421-mdfix1";
+import { initShell } from "../site_common.js?v=20260902-v021";
 import { normalizeDisplayTitle, normalizeParagraphDisplayText } from "../reader_text.js?v=20260307-br2";
-import { downloadPlainTextFile, parseNameSetText, serializeNameSetText } from "../name_set_text.js?v=20260405-name1";
+import { downloadPlainTextFile, parseNameSetText, serializeNameSetText } from "../name_set_text.js?v=20260902-v021";
 
 const refs = {
   bookInfoTitle: document.getElementById("book-info-title"),
