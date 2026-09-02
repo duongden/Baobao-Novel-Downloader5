@@ -36,6 +36,8 @@ const DEFAULT_SETTINGS = {
   miniBarsEnabled: true,
   translationEnabled: true,
   translationMode: "local",
+  chapterPrefetchThreshold: 50,
+  chapterPrefetchCount: 1,
 };
 
 const LOCAL_TRANSLATION_DEFAULT = {
@@ -347,6 +349,23 @@ function buildReaderSettingsExtrasMarkup() {
   );
 }
 
+function buildChapterPrefetchSettingMarkup() {
+  return (
+    `<fieldset id="chapter-prefetch-settings" class="local-translation-settings">
+      <legend>${t("chapterPrefetchSettings")}</legend>
+      <label>
+        <span>${t("chapterPrefetchThreshold")}</span>
+        <input id="chapter-prefetch-threshold-input" type="number" min="1" max="100" step="1" inputmode="numeric">
+      </label>
+      <label>
+        <span>${t("chapterPrefetchCount")}</span>
+        <input id="chapter-prefetch-count-input" type="number" min="0" max="10" step="1" inputmode="numeric">
+      </label>
+      <small class="dialog-subtitle">${t("chapterPrefetchHint")}</small>
+    </fieldset>`
+  );
+}
+
 function buildComicOcrSettingMarkup() {
   return (
     `<fieldset id="comic-ocr-settings" class="comic-ocr-settings">
@@ -550,8 +569,12 @@ function ensureSettingsEnhancements(settingsForm, { bookScopedTranslation = fals
     insertMarkupAfter(miniBarsLabel, buildReaderSettingsExtrasMarkup());
   }
   const readerUiAnchor = qs("comic-edge-tint-strength-wrap") || qs("comic-edge-tint-enabled-wrap") || qs("toc-side-wrap") || miniBarsLabel;
-  if (readerUiAnchor && !qs("comic-ocr-settings")) {
-    insertMarkupAfter(readerUiAnchor, buildComicOcrSettingMarkup());
+  if (readerUiAnchor && !qs("chapter-prefetch-settings")) {
+    insertMarkupAfter(readerUiAnchor, buildChapterPrefetchSettingMarkup());
+  }
+  const comicOcrAnchor = qs("chapter-prefetch-settings") || readerUiAnchor;
+  if (comicOcrAnchor && !qs("comic-ocr-settings")) {
+    insertMarkupAfter(comicOcrAnchor, buildComicOcrSettingMarkup());
   }
   const translationModeLabel = qs("translation-mode-select") && qs("translation-mode-select").closest("label");
   if (translationModeLabel && !qs("title-cache-auto-wrap")) {
@@ -598,6 +621,7 @@ function ensureSettingsEnhancements(settingsForm, { bookScopedTranslation = fals
         qs("toc-side-wrap"),
         qs("comic-edge-tint-enabled-wrap"),
         qs("comic-edge-tint-strength-wrap"),
+        qs("chapter-prefetch-settings"),
       ],
     },
     {
@@ -976,6 +1000,22 @@ function normalizeComicEdgeTintStrength(value) {
   if (!Number.isFinite(num)) return 28;
   if (num < 0) return 0;
   if (num > 100) return 100;
+  return num;
+}
+
+function normalizeChapterPrefetchThreshold(value) {
+  const num = Number.parseInt(String(value ?? ""), 10);
+  if (!Number.isFinite(num)) return DEFAULT_SETTINGS.chapterPrefetchThreshold;
+  if (num < 1) return 1;
+  if (num > 100) return 100;
+  return num;
+}
+
+function normalizeChapterPrefetchCount(value) {
+  const num = Number.parseInt(String(value ?? ""), 10);
+  if (!Number.isFinite(num)) return DEFAULT_SETTINGS.chapterPrefetchCount;
+  if (num < 0) return 0;
+  if (num > 10) return 10;
   return num;
 }
 
@@ -2592,6 +2632,8 @@ export async function initShell({ page, onSearchSubmit, onImported, onImportUrl,
   state.settings.themeCustomEnabled = state.settings.themeCustomEnabled === true;
   state.settings.comicEdgeTintEnabled = state.settings.comicEdgeTintEnabled === true;
   state.settings.comicEdgeTintStrength = normalizeComicEdgeTintStrength(state.settings.comicEdgeTintStrength);
+  state.settings.chapterPrefetchThreshold = normalizeChapterPrefetchThreshold(state.settings.chapterPrefetchThreshold);
+  state.settings.chapterPrefetchCount = normalizeChapterPrefetchCount(state.settings.chapterPrefetchCount);
   for (const field of THEME_CUSTOM_FIELDS) {
     state.settings[field.settingKey] = normalizeHexColor(state.settings[field.settingKey]);
   }
@@ -2624,6 +2666,8 @@ export async function initShell({ page, onSearchSubmit, onImported, onImportUrl,
   const comicEdgeTintStrengthInput = qs("comic-edge-tint-strength-input");
   const comicEdgeTintStrengthValue = qs("comic-edge-tint-strength-value");
   const comicEdgeTintStrengthWrap = qs("comic-edge-tint-strength-wrap");
+  const chapterPrefetchThresholdInput = qs("chapter-prefetch-threshold-input");
+  const chapterPrefetchCountInput = qs("chapter-prefetch-count-input");
   const comicOcrPageConcurrencySelect = qs("comic-ocr-page-concurrency-select");
   const comicOcrPrefetchNextInput = qs("comic-ocr-prefetch-next-input");
   const comicOcrOverlayFontSizeSelect = qs("comic-ocr-overlay-font-size-select");
@@ -2799,6 +2843,8 @@ export async function initShell({ page, onSearchSubmit, onImported, onImportUrl,
   if (miniBarsScaleInput) miniBarsScaleInput.value = String(normalizeMiniBarsScale(state.settings.miniBarsScale));
   if (miniBarsScaleValue) miniBarsScaleValue.textContent = `${normalizeMiniBarsScale(state.settings.miniBarsScale).toFixed(2)}x`;
   if (tocSideSelect) tocSideSelect.value = normalizeTocSide(state.settings.tocSide);
+  if (chapterPrefetchThresholdInput) chapterPrefetchThresholdInput.value = String(state.settings.chapterPrefetchThreshold);
+  if (chapterPrefetchCountInput) chapterPrefetchCountInput.value = String(state.settings.chapterPrefetchCount);
   const syncComicEdgeTintForm = () => {
     state.settings.comicEdgeTintEnabled = state.settings.comicEdgeTintEnabled === true;
     state.settings.comicEdgeTintStrength = normalizeComicEdgeTintStrength(state.settings.comicEdgeTintStrength);
@@ -4308,6 +4354,21 @@ export async function initShell({ page, onSearchSubmit, onImported, onImportUrl,
     });
   }
 
+  const saveChapterPrefetchSettings = () => {
+    state.settings.chapterPrefetchThreshold = normalizeChapterPrefetchThreshold(
+      chapterPrefetchThresholdInput && chapterPrefetchThresholdInput.value,
+    );
+    state.settings.chapterPrefetchCount = normalizeChapterPrefetchCount(
+      chapterPrefetchCountInput && chapterPrefetchCountInput.value,
+    );
+    if (chapterPrefetchThresholdInput) chapterPrefetchThresholdInput.value = String(state.settings.chapterPrefetchThreshold);
+    if (chapterPrefetchCountInput) chapterPrefetchCountInput.value = String(state.settings.chapterPrefetchCount);
+    saveSettings(state.settings);
+    emitSettingsChanged(state.settings);
+  };
+  if (chapterPrefetchThresholdInput) chapterPrefetchThresholdInput.addEventListener("change", saveChapterPrefetchSettings);
+  if (chapterPrefetchCountInput) chapterPrefetchCountInput.addEventListener("change", saveChapterPrefetchSettings);
+
   if (comicOcrPageConcurrencySelect) {
     comicOcrPageConcurrencySelect.addEventListener("change", async () => {
       state.comicOcrSettings = collectComicOcrSettingsFromForm();
@@ -4514,6 +4575,8 @@ export async function initShell({ page, onSearchSubmit, onImported, onImportUrl,
       state.settings.tocSide = normalizeTocSide((tocSideSelect && tocSideSelect.value) || DEFAULT_SETTINGS.tocSide);
       state.settings.comicEdgeTintEnabled = (comicEdgeTintEnabledSelect && comicEdgeTintEnabledSelect.value) === "on";
       state.settings.comicEdgeTintStrength = normalizeComicEdgeTintStrength((comicEdgeTintStrengthInput && comicEdgeTintStrengthInput.value) || DEFAULT_SETTINGS.comicEdgeTintStrength);
+      state.settings.chapterPrefetchThreshold = normalizeChapterPrefetchThreshold(chapterPrefetchThresholdInput && chapterPrefetchThresholdInput.value);
+      state.settings.chapterPrefetchCount = normalizeChapterPrefetchCount(chapterPrefetchCountInput && chapterPrefetchCountInput.value);
       state.comicOcrSettings = collectComicOcrSettingsFromForm();
       state.settings.translationEnabled = (translationEnabledSelect && translationEnabledSelect.value) !== "off";
       state.settings.translationMode = normalizeTranslationMode((translationModeSelect && translationModeSelect.value) || DEFAULT_SETTINGS.translationMode);
@@ -4563,6 +4626,8 @@ export async function initShell({ page, onSearchSubmit, onImported, onImportUrl,
       if (comicEdgeTintEnabledSelect) comicEdgeTintEnabledSelect.value = state.settings.comicEdgeTintEnabled ? "on" : "off";
       if (comicEdgeTintStrengthInput) comicEdgeTintStrengthInput.value = String(state.settings.comicEdgeTintStrength);
       if (comicEdgeTintStrengthValue) comicEdgeTintStrengthValue.textContent = `${state.settings.comicEdgeTintStrength}%`;
+      if (chapterPrefetchThresholdInput) chapterPrefetchThresholdInput.value = String(state.settings.chapterPrefetchThreshold);
+      if (chapterPrefetchCountInput) chapterPrefetchCountInput.value = String(state.settings.chapterPrefetchCount);
       if (comicEdgeTintStrengthWrap) comicEdgeTintStrengthWrap.hidden = !state.settings.comicEdgeTintEnabled;
       state.comicOcrSettings = { ...COMIC_OCR_SETTINGS_DEFAULT };
       syncComicOcrSettingsForm();
@@ -5856,6 +5921,10 @@ export async function initShell({ page, onSearchSubmit, onImported, onImportUrl,
     getReadingMode: () => state.settings.readingMode,
     getTranslationEnabled: () => state.settings.translationEnabled !== false,
     getTranslationMode: () => normalizeTranslationMode(state.settings.translationMode),
+    getChapterPrefetchSettings: () => ({
+      thresholdPercent: normalizeChapterPrefetchThreshold(state.settings.chapterPrefetchThreshold),
+      count: normalizeChapterPrefetchCount(state.settings.chapterPrefetchCount),
+    }),
     getTranslationLocalSettings: (mode = state.settings.translationMode) => getLocalTranslationState(mode),
     getVbookTranslateSettings: () => normalizeVbookTranslateSettings(state.readerTranslationVbookExt || {}),
     getVbookTranslatePlugins: () => (Array.isArray(state.vbookTranslatePlugins) ? state.vbookTranslatePlugins.slice() : []),

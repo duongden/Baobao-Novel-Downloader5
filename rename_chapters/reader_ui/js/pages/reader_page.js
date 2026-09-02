@@ -302,6 +302,9 @@ const state = {
   prefetchControllers: new Map(),
   prefetchTimers: new Map(),
   prefetchRunSeq: 0,
+  prefetchTriggeredChapterKey: "",
+  prefetchPlanKey: "",
+  loadedChapterId: "",
   activeChapterController: null,
   chapterLoadSeq: 0,
   fullscreenUiTimer: null,
@@ -1149,6 +1152,7 @@ function dropChapterCacheById(chapterId) {
 
 function cancelPrefetch(exceptKeys = new Set()) {
   state.prefetchRunSeq += 1;
+  if (!exceptKeys.size) state.prefetchPlanKey = "";
   for (const [key, timer] of state.prefetchTimers.entries()) {
     if (exceptKeys.has(key)) continue;
     window.clearTimeout(timer);
@@ -1910,6 +1914,9 @@ function prefetchOptions() {
   const cfg = (state.shell && typeof state.shell.getVbookSettings === "function")
     ? (state.shell.getVbookSettings(pluginId) || {})
     : {};
+  const chapterCfg = (state.shell && typeof state.shell.getChapterPrefetchSettings === "function")
+    ? (state.shell.getChapterPrefetchSettings() || {})
+    : { thresholdPercent: 50, count: 1 };
   const asInt = (raw, min, max, fallback) => {
     const num = Number.parseInt(String(raw ?? ""), 10);
     if (!Number.isFinite(num)) return fallback;
@@ -1918,7 +1925,12 @@ function prefetchOptions() {
     return num;
   };
   return {
-    prefetchUnreadCount: asInt(cfg.prefetch_unread_count, 0, 50, defaults.prefetchUnreadCount),
+    prefetchUnreadCount: state.chapterContentType === "images"
+      ? asInt(cfg.prefetch_unread_count, 0, 50, defaults.prefetchUnreadCount)
+      : asInt(chapterCfg.count, 0, 10, 1),
+    thresholdRatio: state.chapterContentType === "images"
+      ? 0
+      : (asInt(chapterCfg.thresholdPercent, 1, 100, 50) / 100),
     downloadThreads: asInt(cfg.download_threads, 1, 16, defaults.downloadThreads),
     requestDelayMs: asInt(cfg.request_delay_ms, 0, 15000, defaults.requestDelayMs),
   };
@@ -1926,6 +1938,7 @@ function prefetchOptions() {
 
 function prefetchNearbyChapters() {
   if (!state.book || !state.chapterId) return;
+  if (String(state.loadedChapterId || "").trim() !== String(state.chapterId || "").trim()) return;
   const idx = findChapterIndex();
   if (idx < 0) return;
 
@@ -1938,6 +1951,15 @@ function prefetchNearbyChapters() {
 
   const mode = effectiveMode();
   const translationMode = state.translateMode;
+  const triggerKey = chapterCacheKey(state.chapterId, mode, translationMode);
+  if (
+    state.chapterContentType !== "images"
+    && currentChapterPrefetchRatio() < options.thresholdRatio
+    && state.prefetchTriggeredChapterKey !== triggerKey
+  ) {
+    return;
+  }
+  state.prefetchTriggeredChapterKey = triggerKey;
   const chapters = [];
   for (let step = 1; step <= maxForward; step += 1) {
     const next = findChapterAt(idx + step);
@@ -1946,12 +1968,16 @@ function prefetchNearbyChapters() {
   }
 
   const keepKeys = new Set(chapters.map((ch) => chapterCacheKey(ch.chapter_id, mode, translationMode)));
+  const planKey = `${triggerKey}::${Array.from(keepKeys).join("|")}`;
+  if (state.prefetchPlanKey === planKey) return;
   cancelPrefetch(keepKeys);
+  state.prefetchPlanKey = planKey;
   const runSeq = state.prefetchRunSeq;
   const delayMs = Math.max(0, options.requestDelayMs);
 
   (async () => {
     let firstFetch = true;
+    let hadFailure = false;
     for (const chapter of chapters) {
       if (runSeq !== state.prefetchRunSeq) return;
       const cid = chapter.chapter_id;
@@ -1970,6 +1996,7 @@ function prefetchNearbyChapters() {
       try {
         await fetchChapterContent(cid, { mode, translationMode, signal: controller.signal });
       } catch {
+        hadFailure = true;
         // prefetch fail không chặn UI
       } finally {
         if (state.prefetchControllers.get(key) === controller) {
@@ -1977,6 +2004,7 @@ function prefetchNearbyChapters() {
         }
       }
     }
+    if (hadFailure && state.prefetchPlanKey === planKey) state.prefetchPlanKey = "";
   })();
 }
 
@@ -2102,6 +2130,16 @@ function chapterRatioByMode(mode) {
 
 function currentChapterRatio() {
   return chapterRatioByMode(runtimeReadingMode());
+}
+
+function currentChapterPrefetchRatio() {
+  const mode = runtimeReadingMode();
+  if (mode === "flip" && state.flipPages.length <= 1) return 1;
+  const wrap = refs.readerContentScroll;
+  if (!wrap) return currentChapterRatio();
+  if (mode === "horizontal" && wrap.scrollWidth <= wrap.clientWidth + 2) return 1;
+  if ((mode === "vertical" || mode === "hybrid") && verticalScrollState().max <= 2) return 1;
+  return currentChapterRatio();
 }
 
 function virtualPagingByViewport() {
@@ -4614,6 +4652,7 @@ function updateProgress() {
   if (refs.readerMiniPageCounter) refs.readerMiniPageCounter.textContent = state.shell.t("pageCounter", { current: pageCurrent, total: pageTotal });
   if (refs.readerMiniBookPercent) refs.readerMiniBookPercent.textContent = state.shell.t("bookPercent", { percent: state.bookPercent.toFixed(1) });
   updateMiniInfoVisibility();
+  prefetchNearbyChapters();
 }
 
 async function saveProgress() {
@@ -4700,6 +4739,9 @@ async function loadChapter({
   }
   const requestSeq = ++state.chapterLoadSeq;
   const targetChapterId = state.chapterId;
+  state.loadedChapterId = "";
+  state.prefetchTriggeredChapterKey = "";
+  state.prefetchPlanKey = "";
   const mode = effectiveMode();
   const translationMode = state.translateMode;
   const controller = new AbortController();
@@ -4755,6 +4797,7 @@ async function loadChapter({
     state.chapterRemoteUrl = String(chapter.remote_url || "").trim();
     state.chapterRawEdited = Boolean(chapter.raw_edited);
     state.chapterRawEditUpdatedAt = String(chapter.raw_edit_updated_at || "").trim();
+    state.loadedChapterId = targetChapterId;
     if (state.chapterContentType !== "images" && state.book && state.book.is_comic && state.chapterText) {
       const urlRows = state.chapterText
         .split(/\r?\n/g)
@@ -4802,6 +4845,7 @@ async function loadChapter({
       state.chapterTransSig = "";
       state.chapterMapVersion = 0;
       state.chapterUnitCount = 0;
+      state.loadedChapterId = "";
       resetComicOcrState();
       syncModeButtons();
       renderChapterError(getErrorMessage(error));
