@@ -1,4 +1,22 @@
-# Changelog Reader 0.2.0
+# Changelog Reader 0.2.1
+
+> [!NEW] TM Translate beta
+> - Trong `Cài đặt > Dịch & xử lý`, có thể chọn riêng `TM Translate (beta)`.
+> - Chế độ này dùng cách chuẩn hóa, tách đoạn, giữ dấu/ký hiệu và thay Name tương thích với luồng TM Translate beta.
+> - Gợi ý/chỉnh Name của chế độ beta dùng bộ Hán Việt local `ChinesePhienAmWords.txt` đi kèm Reader.
+
+> [!NEW] Chỉnh RAW và gợi ý Name
+> - Cửa sổ sửa RAW cho phép sửa cả tiêu đề gốc của chương. Reader cập nhật mục lục, tìm kiếm và xóa bản dịch cache cũ của chương sau khi lưu.
+> - Gợi ý Name có nút `EN`; bấm nút để dùng Google Translate dịch cụm Trung hiện tại sang tên tiếng Anh và điền thẳng vào ô tên đích.
+> - `Phân tích Name` lọc chặt hơn các từ thông thường, xưng hô, địa điểm chung và mảnh câu bị nhận nhầm thành tên.
+
+> [!NEW] Xuất dữ liệu đầy đủ hơn
+> - File xuất bộ Name có thêm tên truyện và tác giả ở phần đầu; các dòng này là ghi chú nên vẫn nhập được bằng định dạng cũ.
+> - Khi xuất truyện, Reader lấy ảnh bìa mới nhất đang lưu cho truyện, kể cả ảnh người dùng vừa tải lên.
+
+---
+
+## Bản 0.2.0
 
 > [!NEW] OCR comic dễ dùng hơn
 > - OCR comic chuyển sang nhận diện từng vùng chữ trước rồi mới OCR, nên nhanh hơn và gán overlay đúng vị trí hơn.

@@ -1,10 +1,29 @@
 <h1>Bản cập nhật 0.3.3.6</h1>
 
 <p>
-  Novel Studio 0.3.3.6 đi kèm Reader Server 0.2.0 và Reader UI 0.2.0.
-  Bản này tập trung làm OCR comic dễ sửa hơn, nhập comic vào thư viện tốt hơn,
-  ổn định vBook/browser và sửa các lỗi nhỏ khi xử lý văn bản.
+  Novel Studio 0.3.3.6 đi kèm Reader Server 0.2.1 và Reader UI 0.2.1.
+  Bản này bổ sung theo dõi thay đổi chương Fanqie, hoàn thiện Auto Update/liên kết bổ sung,
+  thêm luồng dịch TM Translate beta và nhiều cải tiến cho chỉnh sửa, Name và xuất truyện trong Reader.
 </p>
+
+<h2>Fanqie và danh sách chương</h2>
+<ul>
+  <li>Khi lấy mục lục Fanqie, app ưu tiên Fanqie Bridge, tự mở bridge nếu cần và tự fallback sang web khi bridge không dùng được.</li>
+  <li>Số ký tự của từng chương được lưu lại qua các lần mở app. Trang truyện có thêm bảng chương tiếng Trung, đánh số rõ ràng ngay dưới <b>Tên quyển hiện có</b>.</li>
+  <li>Nếu số ký tự mới khác lần trước, chương đó được đưa lên đầu bảng, tô đỏ và gắn nhãn <b>Đã thay đổi</b>.</li>
+  <li>Truyện có chương thay đổi được tô bằng màu trạng thái riêng trong danh sách; phần <b>Công cụ &gt; Thông tin</b> có giải thích màu này.</li>
+  <li>Màu tùy chỉnh cho <b>Highlight truyện có n chương</b> được kiểm tra để không trùng với các màu trạng thái mặc định.</li>
+</ul>
+
+<h2>Reader Server/UI 0.2.1</h2>
+<ul>
+  <li>Có thêm chế độ <b>TM Translate (beta)</b> riêng, dùng luồng tách đoạn, giữ ký hiệu và thay Name tương thích với TM Translate; phần gợi ý/chỉnh Name dùng dữ liệu Hán Việt local đi kèm.</li>
+  <li>Trình sửa RAW cho phép sửa cả tiêu đề gốc của chương; mục lục và cache tìm kiếm được cập nhật theo.</li>
+  <li>Xuất bộ Name có thêm tên truyện và tác giả trong phần đầu file nhưng vẫn nhập lại tương thích với định dạng cũ.</li>
+  <li>Xuất truyện luôn lấy bìa mới nhất đang dùng, kể cả bìa do người dùng vừa tải lên.</li>
+  <li>Gợi ý Name có nút <b>EN</b> để dịch tên Trung sang tiếng Anh bằng luồng Google Translate có sẵn.</li>
+  <li><b>Phân tích Name</b> lọc tốt hơn các từ thông thường, xưng hô và mảnh câu bị nhận nhầm thành tên.</li>
+</ul>
 
 <h2>OCR comic</h2>
 <ul>
@@ -40,13 +59,22 @@
 
 <h2>Wikidich và Auto Update</h2>
 <ul>
-  <li>Auto Update có thể dùng cho truyện không phải Fanqie nếu truyện đã có <b>Liên kết thư mục</b>; app tự chọn thư mục mới nhất, điền file vào cửa sổ upload và chờ bạn bấm tải lên.</li>
+  <li>Auto Update riêng từng truyện dùng cùng cách kiểm tra icon/file như Auto Update tự động toàn cục.</li>
+  <li>Auto Update có thể dùng cho mọi truyện đã có <b>Liên kết thư mục</b>; app luôn chọn thư mục mới nhất, điền file vào cửa sổ upload và chờ bạn bấm tải lên.</li>
+  <li>Hồ sơ chủ và hồ sơ khách đều có thể thêm liên kết bổ sung local. Liên kết đã có trên server được bảo vệ khỏi thao tác xóa local.</li>
+  <li>Có thể đổi thứ tự mọi liên kết bổ sung, kể cả liên kết server; khi kiểm tra cập nhật và dùng link hỗ trợ, app xét từ trên xuống dưới.</li>
   <li>Lịch sử Auto Update có nút <b>Sửa ngay</b> để mở đúng truyện, mở DS Chương và đi tới chương cần sửa khi upload có cảnh báo file/icon.</li>
   <li>Nút xem file cảnh báo được đổi thành <b>Xem file</b>, giữ nguyên chức năng mở file trong công cụ xử lý văn bản.</li>
   <li>Khi mở DS Chương hoặc đồng bộ chương mà dữ liệu trên Wikidich cũ hơn local, app sẽ hỏi trước khi ghi đè.</li>
   <li>Dòng màu cam tự trở về bình thường khi số chương và ngày cập nhật trên Wikidich đã khớp local.</li>
   <li>Màu tím báo truyện gốc đã hoàn thành được ưu tiên hơn màu xanh chương mới.</li>
   <li>Các lượt Chỉnh sửa/Auto Update do bạn bấm tay sẽ được ghi vào lịch sử khi upload thành công.</li>
+</ul>
+
+<h2>Cookie và phản hồi</h2>
+<ul>
+  <li>Sau khi xóa profile trình duyệt đang chọn, tab Cookie chuyển sang profile còn tồn tại thay vì luôn chọn lại <b>Profile 1</b>.</li>
+  <li><b>Trợ giúp &gt; Phản hồi</b> tự rút gọn và giới hạn log đính kèm, tránh làm GitHub quá tải khi log ứng dụng quá lớn.</li>
 </ul>
 
 <h2>Xử lý văn bản</h2>
