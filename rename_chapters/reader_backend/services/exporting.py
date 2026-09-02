@@ -57,9 +57,11 @@ def build_book_export_info(
         cached_translation = False
         row = chapter_row_map.get(cid) or {}
         if can_export and current_sig:
-            trans_key = str(row.get("trans_key") or "").strip()
+            trans_key = service.storage.get_chapter_translation_cache_key(cid, current_sig, translate_mode)
             trans_sig = str(row.get("trans_sig") or "").strip()
-            if trans_key and trans_sig == current_sig and (service.storage.read_cache(trans_key) is not None):
+            if not trans_key and trans_sig == current_sig:
+                trans_key = str(row.get("trans_key") or "").strip()
+            if trans_key and (service.storage.read_cache(trans_key) is not None):
                 cached_translation = service.storage.get_translation_unit_map_count(cid, current_sig, translate_mode) > 0
         if cached_translation:
             translation_cached += 1
@@ -161,20 +163,27 @@ def collect_export_chapters(
         ) or f"Chương {idx}"
         chapter_title = raw_title
         if use_translated_text:
-            chapter_title = service._translate_ui_text_with_dicts(
-                raw_title,
-                single_line=True,
-                mode=translate_mode,
-                name_set_override=active_name_set,
-                vp_set_override=active_vp_set,
-            ) or normalize_vi_display_text(chapter.get("title_vi") or "") or raw_title
+            cached_title = normalize_vi_display_text(chapter.get("title_vi") or "")
+            if translate_mode in {"server", "tm_translate_beta"} and cached_title:
+                chapter_title = cached_title
+            else:
+                chapter_title = service._translate_ui_text_with_dicts(
+                    raw_title,
+                    single_line=True,
+                    mode=translate_mode,
+                    name_set_override=active_name_set,
+                    vp_set_override=active_vp_set,
+                ) or cached_title or raw_title
         needs_translation = False
         if use_translated_text and current_sig and downloaded:
-            trans_key = str(chapter.get("trans_key") or "").strip()
+            chapter_id = str(chapter.get("chapter_id") or "")
+            trans_key = service.storage.get_chapter_translation_cache_key(chapter_id, current_sig, translate_mode)
             trans_sig = str(chapter.get("trans_sig") or "").strip()
-            cached_trans = service.storage.read_cache(trans_key) if trans_key and trans_sig == current_sig else None
+            if not trans_key and trans_sig == current_sig:
+                trans_key = str(chapter.get("trans_key") or "").strip()
+            cached_trans = service.storage.read_cache(trans_key) if trans_key else None
             needs_translation = not (cached_trans is not None and service.storage.get_translation_unit_map_count(
-                str(chapter.get("chapter_id") or ""),
+                chapter_id,
                 current_sig,
                 translate_mode,
             ) > 0)

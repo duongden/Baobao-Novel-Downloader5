@@ -156,6 +156,23 @@ def init_db(
             CREATE INDEX IF NOT EXISTS idx_translation_unit_map_target
             ON translation_unit_map(chapter_id, trans_sig, translation_mode, target_start, target_end);
 
+            CREATE TABLE IF NOT EXISTS chapter_translation_cache (
+                chapter_id TEXT NOT NULL,
+                trans_sig TEXT NOT NULL,
+                translation_mode TEXT NOT NULL,
+                cache_key TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                PRIMARY KEY(chapter_id, trans_sig, translation_mode),
+                FOREIGN KEY(chapter_id) REFERENCES chapters(chapter_id) ON DELETE CASCADE
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_chapter_translation_cache_mode
+            ON chapter_translation_cache(translation_mode, chapter_id);
+
+            CREATE INDEX IF NOT EXISTS idx_chapter_translation_cache_key
+            ON chapter_translation_cache(cache_key);
+
             CREATE TABLE IF NOT EXISTS jobs (
                 job_id TEXT PRIMARY KEY,
                 type TEXT NOT NULL,
@@ -365,4 +382,3 @@ def init_db(
                 """,
                 (app_state_search_cache_version_key, search_cache_version, utc_now_iso()),
             )
-

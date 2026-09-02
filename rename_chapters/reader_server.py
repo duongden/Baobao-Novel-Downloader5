@@ -3808,6 +3808,30 @@ class ReaderStorage:
             utc_now_iso=utc_now_iso,
         )
 
+    def get_chapter_translation_cache_key(self, chapter_id: str, trans_sig: str, translation_mode: str) -> str:
+        return storage_cache_support.get_chapter_translation_cache_key(
+            self,
+            chapter_id,
+            trans_sig,
+            translation_mode,
+        )
+
+    def set_chapter_translation_cache_key(
+        self,
+        chapter_id: str,
+        trans_sig: str,
+        translation_mode: str,
+        cache_key: str,
+    ) -> None:
+        storage_cache_support.set_chapter_translation_cache_key(
+            self,
+            chapter_id,
+            trans_sig,
+            translation_mode,
+            cache_key,
+            utc_now_iso=utc_now_iso,
+        )
+
     def save_translation_unit_map(
         self,
         chapter_id: str,
@@ -8006,6 +8030,54 @@ class ReaderService:
             return [normalize_vbook_display_text(value, single_line=single_line) for value in values]
 
         translate_mode = self.resolve_translate_mode(mode)
+        if translate_mode == TM_TRANSLATE_BETA_MODE:
+            outputs = [normalize_vbook_display_text(value, single_line=single_line) for value in values]
+            unique_sources = list(dict.fromkeys(
+                value for value in values if value and self._contains_cjk_text(value)
+            ))
+            server_sig = self.translator.translation_signature(
+                mode="server",
+                name_set_override=name_set_override,
+                vp_set_override=vp_set_override,
+            )
+            try:
+                server_cached = self.storage.get_translation_memory_batch(unique_sources, "server", server_sig)
+            except Exception:
+                server_cached = {}
+            resolved: dict[str, str] = {}
+            for source_key, translated_value in (server_cached or {}).items():
+                normalized_source = normalize_vbook_display_text(source_key or "", single_line=False)
+                normalized_target = normalize_vbook_display_text(
+                    normalize_vi_display_text(translated_value or ""),
+                    single_line=single_line,
+                )
+                if normalized_source and normalized_target and not self._is_effectively_untranslated_ui_text(normalized_source, normalized_target):
+                    resolved[normalized_source] = normalized_target
+            missing = [source for source in unique_sources if source not in resolved]
+            for source in missing:
+                resolved[source] = self._translate_ui_text_with_dicts(
+                    source,
+                    single_line=single_line,
+                    mode=translate_mode,
+                    name_set_override=name_set_override,
+                    vp_set_override=vp_set_override,
+                )
+            for idx, value in enumerate(values):
+                outputs[idx] = resolved.get(value) or outputs[idx]
+            self.debug_log(
+                "reader_translation_ui_batch",
+                status="ok",
+                mode=translate_mode,
+                count=len(values),
+                cache_source="server_shared",
+                cache_hit_count=len(unique_sources) - len(missing),
+                missing_count=len(missing),
+                total_source_len=sum(len(value or "") for value in values),
+                total_output_len=sum(len(value or "") for value in outputs),
+                duration_ms=round((time.perf_counter() - started) * 1000, 1),
+            )
+            return outputs
+
         if translate_mode != "server":
             output = [
                 self._translate_ui_text_with_dicts(
@@ -8437,7 +8509,7 @@ class ReaderService:
             seen_ids.add(bid)
             normalized_ids.append(bid)
         mode = self.resolve_translate_mode(translate_mode)
-        if mode != "server":
+        if mode not in {"server", TM_TRANSLATE_BETA_MODE}:
             return {
                 "ok": True,
                 "queued_ids": [],

@@ -3,13 +3,14 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-_CACHE_TRANSLATION_MODES = ("server", "tm_translate_beta", "local", "dichngay_local", "hanviet", "google_translate")
+_CACHE_TRANSLATION_MODES = ("server", "tm_translate_beta", "local", "dichngay_local", "hanviet", "vbook_ext", "google_translate")
 _CACHE_TRANSLATION_LABELS = {
     "server": "Server",
     "tm_translate_beta": "TM Translate (beta)",
     "local": "Local",
     "dichngay_local": "Mô phỏng",
     "hanviet": "Hán Việt",
+    "vbook_ext": "Extension vBook",
     "google_translate": "Google Translate",
 }
 

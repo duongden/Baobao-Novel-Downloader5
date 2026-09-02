@@ -1296,7 +1296,7 @@ function upsertStateBook(book, { prepend = true } = {}) {
 function needsLazyLibraryCardRefresh(book) {
   if (!book) return false;
   if (Boolean(book._libraryCardLazyRefreshDone) || Boolean(book._libraryCardLazyRefreshQueued)) return false;
-  if (getCurrentReaderMode() === "trans" && getCurrentTranslationMode() === "server") return false;
+  if (getCurrentReaderMode() === "trans" && ["server", "tm_translate_beta"].includes(getCurrentTranslationMode())) return false;
   if (Boolean(book._libraryCardNeedsHydrate)) return true;
   if (getCurrentReaderMode() !== "trans") return false;
   if (!Boolean(parseBooleanLike(book.translation_supported))) return false;
@@ -1320,7 +1320,7 @@ function prepareLibraryPageBook(book) {
 }
 
 function isServerLibraryTitleCacheMode() {
-  return getCurrentReaderMode() === "trans" && getCurrentTranslationMode() === "server";
+  return getCurrentReaderMode() === "trans" && ["server", "tm_translate_beta"].includes(getCurrentTranslationMode());
 }
 
 function bookNeedsServerTitleCache(book) {

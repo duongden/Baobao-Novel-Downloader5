@@ -109,6 +109,7 @@ def _apply_book_display_fields(
 ) -> None:
     allow_translate = handler.service.translation_allowed_for_book(book)
     live_title_mode = translate_mode in {"local", "hanviet", "dichngay_local"}
+    shared_remote_title_mode = translate_mode in {"server", "tm_translate_beta"}
     raw_summary = deps.normalize_vbook_display_text(str(book.get("summary") or ""), single_line=False) or str(book.get("summary") or "")
     if allow_translate:
         raw_title = deps.normalize_vbook_display_text(str(book.get("title") or ""), single_line=True) or str(book.get("title") or "")
@@ -125,6 +126,8 @@ def _apply_book_display_fields(
                 name_set_override=active_name_set,
                 vp_set_override=active_vp_set,
             ) or raw_title
+        elif shared_remote_title_mode and title_vi:
+            book["title_display"] = title_vi
         else:
             title_outputs = handler.service._translate_ui_texts_batch(
                 [raw_title] if raw_title else [],
@@ -153,6 +156,8 @@ def _apply_book_display_fields(
                     ) or row_title_raw
                 elif live_title_mode:
                     row["title_display"] = row_title_vi or row_title_raw
+                elif shared_remote_title_mode and row_title_vi:
+                    row["title_display"] = row_title_vi
                 else:
                     if row_title_raw:
                         row["title_display"] = row_title_raw
@@ -364,9 +369,10 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
         if mode == "trans" and translate_mode in {"server", "tm_translate_beta"}:
             rows = data.get("items")
             if isinstance(rows, list) and rows:
+                pending_rows = [row for row in rows if isinstance(row, dict) and not deps.normalize_vi_display_text(row.get("title_vi") or "")]
                 raw_titles = [
-                    deps.normalize_vbook_display_text(str((row or {}).get("title_raw") or ""), single_line=True)
-                    for row in rows
+                    deps.normalize_vbook_display_text(str(row.get("title_raw") or ""), single_line=True)
+                    for row in pending_rows
                 ]
                 translated_titles = service._translate_ui_texts_batch(
                     raw_titles,
@@ -375,16 +381,15 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
                     name_set_override=active_name_set,
                     vp_set_override=active_vp_set,
                 )
-                for idx, row in enumerate(rows):
-                    if not isinstance(row, dict):
-                        continue
+                for idx, row in enumerate(pending_rows):
                     translated = translated_titles[idx] if idx < len(translated_titles) else ""
                     row["title_display"] = translated or str(row.get("title_vi") or row.get("title_raw") or "")
             volume_rows = data.get("volumes")
             if isinstance(volume_rows, list) and volume_rows:
+                pending_rows = [row for row in volume_rows if isinstance(row, dict) and not deps.normalize_vi_display_text(row.get("title_vi") or "")]
                 raw_titles = [
-                    deps.normalize_vbook_display_text(str((row or {}).get("title_raw") or ""), single_line=True)
-                    for row in volume_rows
+                    deps.normalize_vbook_display_text(str(row.get("title_raw") or ""), single_line=True)
+                    for row in pending_rows
                 ]
                 translated_titles = service._translate_ui_texts_batch(
                     raw_titles,
@@ -393,9 +398,7 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
                     name_set_override=active_name_set,
                     vp_set_override=active_vp_set,
                 )
-                for idx, row in enumerate(volume_rows):
-                    if not isinstance(row, dict):
-                        continue
+                for idx, row in enumerate(pending_rows):
                     translated = translated_titles[idx] if idx < len(translated_titles) else ""
                     row["title_display"] = translated or str(row.get("title_vi") or row.get("title_raw") or "")
         data["book_id"] = book_id

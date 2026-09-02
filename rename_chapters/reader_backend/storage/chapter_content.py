@@ -355,8 +355,14 @@ def get_chapter_text(
     current_sig = storage.chapter_trans_signature(base_sig, junk_version=junk_version)
     trans_key = chapter.get("trans_key")
     trans_sig = str(chapter.get("trans_sig") or "").strip()
-    if trans_key and trans_sig == current_sig:
-        cached = storage.read_cache(trans_key)
+    mode_cache_key = storage.get_chapter_translation_cache_key(
+        chapter["chapter_id"],
+        current_sig,
+        translate_mode,
+    )
+    active_cache_key = mode_cache_key or (str(trans_key or "").strip() if trans_sig == current_sig else "")
+    if active_cache_key:
+        cached = storage.read_cache(active_cache_key)
         if cached is not None:
             map_count = storage.get_translation_unit_map_count(chapter["chapter_id"], current_sig, translate_mode)
             if map_count > 0:
@@ -365,6 +371,13 @@ def get_chapter_text(
                     str(translate_mode or "").strip().lower() in {"server", "tm_translate_beta"}
                     and _looks_suspicious_server_translation(source_for_translation, cached_text)
                 ):
+                    if not mode_cache_key:
+                        storage.set_chapter_translation_cache_key(
+                            chapter["chapter_id"],
+                            current_sig,
+                            translate_mode,
+                            active_cache_key,
+                        )
                     return cached_text
 
     if trans_key and trans_sig and trans_sig != current_sig and str(translate_mode or "").strip().lower() in {"server", "tm_translate_beta"}:
@@ -403,6 +416,9 @@ def get_chapter_text(
                     translate_mode,
                     reused_detail.get("unit_map") if isinstance(reused_detail.get("unit_map"), list) else [],
                 )
+                storage.set_chapter_translation_cache_key(
+                    chapter["chapter_id"], current_sig, translate_mode, new_key,
+                )
                 chapter["trans_key"] = new_key
                 chapter["trans_sig"] = current_sig
                 return translated
@@ -426,6 +442,9 @@ def get_chapter_text(
         current_sig,
         translate_mode,
         detail.get("unit_map") if isinstance(detail.get("unit_map"), list) else [],
+    )
+    storage.set_chapter_translation_cache_key(
+        chapter["chapter_id"], current_sig, translate_mode, new_key,
     )
     chapter["trans_key"] = new_key
     chapter["trans_sig"] = current_sig

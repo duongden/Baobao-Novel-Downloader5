@@ -109,6 +109,23 @@ def delete_book(
         for ch in chapters
         if str(ch.get("trans_sig") or "").strip()
     }
+    if chapter_ids:
+        with storage._connect() as conn:
+            placeholders = ",".join("?" for _ in chapter_ids)
+            mapped_rows = conn.execute(
+                f"SELECT cache_key, trans_sig FROM chapter_translation_cache WHERE chapter_id IN ({placeholders})",
+                tuple(chapter_ids),
+            ).fetchall()
+        content_keys.update(
+            str(row["cache_key"] or "").strip()
+            for row in mapped_rows
+            if str(row["cache_key"] or "").strip()
+        )
+        trans_sigs.update(
+            str(row["trans_sig"] or "").strip()
+            for row in mapped_rows
+            if str(row["trans_sig"] or "").strip()
+        )
     trans_sig_snapshot_keys = {
         f"{_TRANS_SIG_SNAPSHOT_KEY_PREFIX}.{base_sig}"
         for base_sig in (sig.split("|junk:", 1)[0].strip() for sig in trans_sigs)
