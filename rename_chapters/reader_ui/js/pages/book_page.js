@@ -3370,7 +3370,13 @@ function mergeBookNameEntriesWithPriority(currentEntries, incomingEntries) {
 
 function buildBookNameExportText() {
   const active = state.bookActiveNameSet || "Mặc định";
-  return serializeNameSetText(state.bookNameSets[active] || {});
+  return serializeNameSetText(
+    state.bookNameSets[active] || {},
+    {
+      bookTitle: String((state.book && (state.book.title || state.book.title_raw || state.book.title_display)) || "").trim(),
+      author: String((state.book && (state.book.author || state.book.author_raw || state.book.author_display)) || "").trim(),
+    },
+  );
 }
 
 function parseBookNameEntriesOrThrow(rawText) {

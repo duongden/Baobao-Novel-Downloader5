@@ -20,8 +20,14 @@ export function parseNameSetText(raw) {
   };
 }
 
-export function serializeNameSetText(entries) {
+export function serializeNameSetText(entries, metadata = null) {
   const lines = [];
+  const meta = metadata && typeof metadata === "object" ? metadata : {};
+  const bookTitle = String(meta.bookTitle || meta.title || "").replace(/[\r\n]+/g, " ").trim();
+  const author = String(meta.author || "").replace(/[\r\n]+/g, " ").trim();
+  if (bookTitle) lines.push(`# Tên truyện: ${bookTitle}`);
+  if (author) lines.push(`# Tác giả: ${author}`);
+  if (lines.length) lines.push("");
   for (const [rawSource, rawTarget] of Object.entries(entries || {})) {
     const source = String(rawSource || "").trim();
     const target = String(rawTarget || "").trim();

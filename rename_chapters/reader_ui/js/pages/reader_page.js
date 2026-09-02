@@ -5130,7 +5130,16 @@ function mergeNameEntriesWithPriority(currentEntries, incomingEntries) {
 }
 
 function buildNameSetExportText() {
-  return serializeNameSetText(getCurrentDictEntries());
+  const includeBookMetadata = isNameBookScope() && state.book;
+  return serializeNameSetText(
+    getCurrentDictEntries(),
+    includeBookMetadata
+      ? {
+          bookTitle: String(state.book.title || state.book.title_raw || state.book.title_display || "").trim(),
+          author: String(state.book.author || state.book.author_raw || state.book.author_display || "").trim(),
+        }
+      : null,
+  );
 }
 
 function parseNameEntriesOrThrow(rawText) {
