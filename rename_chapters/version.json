@@ -67,7 +67,7 @@
   },
   "ocr_runtime": {
     "version": "0.1.2",
-    "url": "https://github.com/BaoBao666888/Novel-Downloader5/releases/download/0.3.3.6/ocr_runtime.zip",
+    "url": "https://github.com/BaoBao666888/Novel-Downloader5/releases/download/0.3.3.5/ocr_runtime.zip",
     "exe_name": "ocr_runtime.exe",
     "notes": "Đóng gói như reader_server. "
   }
