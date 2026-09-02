@@ -277,6 +277,157 @@ _STOPWORDS = {
 _INVALID_EDGE_CHARS = set("的一了着过嗎吗呢啊呀吧么之其并且而且如果因为所以但是然后于是")
 _INVALID_TRAILING_NAME_CHARS = {"说", "說", "道", "问", "問", "答", "看", "望", "叫", "喊", "笑", "知"}
 
+_NON_NAME_SYNTAX_PREFIXES = (
+    "我",
+    "你",
+    "妳",
+    "他",
+    "她",
+    "它",
+    "祂",
+    "这位",
+    "這位",
+    "这个",
+    "這個",
+    "这些",
+    "這些",
+    "那位",
+    "那个",
+    "那個",
+    "那些",
+    "他的",
+    "她的",
+    "它的",
+    "他们的",
+    "他們的",
+    "她们的",
+    "她們的",
+    "它们的",
+    "它們的",
+    "他被",
+    "她被",
+    "它被",
+    "他和",
+    "她和",
+    "它和",
+    "他家",
+    "她家",
+    "它家",
+    "被",
+    "让",
+    "讓",
+    "告诉",
+    "告訴",
+    "听到",
+    "聽到",
+    "听",
+    "聽",
+    "对",
+    "對",
+    "跟",
+    "和",
+    "与",
+    "與",
+    "在",
+    "可",
+    "说得",
+    "說得",
+    "总不",
+    "總不",
+    "难道",
+    "難道",
+    "不管",
+    "带着",
+    "帶著",
+    "还有",
+    "還有",
+    "身为",
+    "身為",
+    "几位",
+    "幾位",
+    "几个",
+    "幾個",
+    "两位",
+    "兩位",
+    "两大",
+    "兩大",
+    "这样",
+    "這樣",
+    "谢谢",
+    "謝謝",
+    "还请",
+    "還請",
+    "求",
+    "本",
+    "人类",
+    "人類",
+    "外卖",
+    "外賣",
+    "数学",
+    "數學",
+    "坏蛋",
+    "壞蛋",
+)
+
+_NON_NAME_NARRATION_SUFFIXES = ("都", "没", "沒", "不", "该", "該", "再", "声", "聲", "地")
+
+_GENERIC_ROLE_PHRASES = {
+    "双胞胎",
+    "雙胞胎",
+    "阳台",
+    "陽台",
+    "阳臺",
+    "陽臺",
+    "总裁大人",
+    "總裁大人",
+    "裁大人",
+    "小哥哥",
+    "小叔叔",
+    "乖宝",
+    "乖寶",
+    "通关",
+    "通關",
+    "好家",
+    "老嬷嬷",
+    "老嬤嬤",
+    "组队",
+    "組隊",
+    "女导",
+    "女導",
+    "小少",
+    "女老师",
+    "女老師",
+    "秘境",
+    "寝殿",
+    "寢殿",
+    "小家",
+    "内殿",
+    "內殿",
+    "爸妈妈",
+    "爸媽媽",
+    "乖宝宝",
+    "乖寶寶",
+    "女医生",
+    "女醫生",
+    "岛台",
+    "島台",
+    "爸爸妈妈",
+    "爸爸媽媽",
+    "小泡泡",
+    "小宝",
+    "小寶",
+    "好姑",
+    "好姑娘",
+    "小师父",
+    "小師父",
+    "人总",
+    "人總",
+    "也总",
+    "也總",
+    "题想",
+    "題想",
+}
+
 
 def _parse_bool(value: Any, default: bool = False) -> bool:
     if isinstance(value, bool):
@@ -403,6 +554,21 @@ def _is_valid_candidate(text: str, *, min_length: int, max_length: int) -> bool:
     if len(set(value)) == 1:
         return False
     return True
+
+
+def _looks_like_non_name_candidate(text: str, *, known_non_names: set[str] | None = None) -> bool:
+    value = str(text or "").strip()
+    if not value:
+        return True
+    if known_non_names and value in known_non_names:
+        return True
+    if value in _GENERIC_ROLE_PHRASES:
+        return True
+    if value.startswith(_NON_NAME_SYNTAX_PREFIXES):
+        return True
+    if value.endswith(_NON_NAME_NARRATION_SUFFIXES):
+        return True
+    return False
 
 
 def _build_context_snippet(text: str, start: int, end: int, *, radius: int = 18) -> str:
@@ -693,6 +859,7 @@ def _build_context(
     bundle_vp_general = normalize_name_set(getattr(local_bundle, "vp_general", {})) if local_bundle is not None else {}
     bundle_name_extra = normalize_name_set(getattr(local_bundle, "name_extra", {})) if local_bundle is not None else {}
     bundle_vp_genre = normalize_name_set(getattr(local_bundle, "vp_genre", {})) if local_bundle is not None else {}
+    bundle_pronouns = normalize_name_set(getattr(local_bundle, "pronouns", {})) if local_bundle is not None else {}
 
     return {
         "book_id": bid,
@@ -710,6 +877,7 @@ def _build_context(
         "bundle_vp_general": bundle_vp_general,
         "bundle_name_extra": bundle_name_extra,
         "bundle_vp_genre": bundle_vp_genre,
+        "bundle_pronouns": bundle_pronouns,
         "allowed_entity_types": _collect_allowed_entity_types(request),
     }
 
@@ -754,16 +922,21 @@ def _build_items_from_merged(
     bundle_vp_general = dict(context.get("bundle_vp_general") or {})
     bundle_name_extra = dict(context.get("bundle_name_extra") or {})
     bundle_vp_genre = dict(context.get("bundle_vp_genre") or {})
+    bundle_pronouns = dict(context.get("bundle_pronouns") or {})
     min_count = int(request.get("min_count") or 5)
     skip_existing = bool(request.get("skip_existing"))
     limit = int(max_items if max_items is not None else (request.get("max_items") or 120))
     formatter = getattr(service, "format_name_hanviet_suggestion", None)
     cache = suggestion_cache if isinstance(suggestion_cache, dict) else {}
+    explicit_name_sources = set(active_name_set) | set(global_name) | set(bundle_name_general) | set(bundle_name_extra)
+    known_non_names = set(active_vp_set) | set(global_vp) | set(bundle_vp_general) | set(bundle_vp_genre) | set(bundle_pronouns)
 
     items: list[dict[str, Any]] = []
     for source, item in merged.items():
         count = int(item.get("count") or 0)
         if count < min_count:
+            continue
+        if source not in explicit_name_sources and _looks_like_non_name_candidate(source, known_non_names=known_non_names):
             continue
         existing_target = str(active_name_set.get(source) or "").strip()
         if skip_existing and existing_target:
