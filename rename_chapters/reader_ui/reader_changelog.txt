@@ -11,7 +11,7 @@
 > - `Phân tích Name` lọc chặt hơn các từ thông thường, xưng hô, địa điểm chung và mảnh câu bị nhận nhầm thành tên.
 
 > [!NEW] Xuất dữ liệu đầy đủ hơn
-> - File xuất bộ Name có thêm tên truyện và tác giả ở phần đầu; các dòng này là ghi chú nên vẫn nhập được bằng định dạng cũ.
+> - Tên file xuất bộ Name có thêm tên truyện và tác giả để dễ phân biệt; nội dung file vẫn giữ nguyên từng dòng `ZH=VI` như trước.
 > - Khi xuất truyện, Reader lấy ảnh bìa mới nhất đang lưu cho truyện, kể cả ảnh người dùng vừa tải lên.
 
 ---

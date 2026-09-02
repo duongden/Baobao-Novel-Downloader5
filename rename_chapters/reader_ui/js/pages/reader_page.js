@@ -1,6 +1,6 @@
 import { initShell } from "../site_common.js?v=20260902-v021";
 import { buildParagraphNodes, normalizeDisplayTitle, normalizeParagraphDisplayText, normalizeReaderText, splitParagraphBlocks } from "../reader_text.js?v=20260408-readerpara2";
-import { downloadPlainTextFile, parseNameSetText, serializeNameSetText } from "../name_set_text.js?v=20260902-v021";
+import { buildNameSetFileName, downloadPlainTextFile, parseNameSetText, serializeNameSetText } from "../name_set_text.js?v=20260902-v021";
 import {
   TTS_DEFAULT_SETTINGS,
   buildTtsSegments,
@@ -5131,16 +5131,7 @@ function mergeNameEntriesWithPriority(currentEntries, incomingEntries) {
 }
 
 function buildNameSetExportText() {
-  const includeBookMetadata = isNameBookScope() && state.book;
-  return serializeNameSetText(
-    getCurrentDictEntries(),
-    includeBookMetadata
-      ? {
-          bookTitle: String(state.book.title || state.book.title_raw || state.book.title_display || "").trim(),
-          author: String(state.book.author || state.book.author_raw || state.book.author_display || "").trim(),
-        }
-      : null,
-  );
+  return serializeNameSetText(getCurrentDictEntries());
 }
 
 function parseNameEntriesOrThrow(rawText) {
@@ -5578,8 +5569,13 @@ function exportActiveNameSet() {
     return;
   }
   const active = state.activeNameSet || "Mặc định";
-  const fileName = `name_set_${active}`.replace(/[^\w\-]+/g, "_");
-  downloadPlainTextFile(buildNameSetExportText(), `${fileName}.txt`);
+  const fileName = buildNameSetFileName({
+    prefix: "name_set",
+    bookTitle: String((state.book && (state.book.title_display || state.book.title_vi || state.book.title || state.book.title_raw)) || "").trim(),
+    author: String((state.book && (state.book.author_display || state.book.author_vi || state.book.author || state.book.author_raw)) || "").trim(),
+    setName: active,
+  });
+  downloadPlainTextFile(buildNameSetExportText(), fileName);
 }
 
 async function importNameSetFromFile(file) {

@@ -1,6 +1,6 @@
 import { initShell } from "../site_common.js?v=20260902-v021";
 import { normalizeDisplayTitle, normalizeParagraphDisplayText } from "../reader_text.js?v=20260307-br2";
-import { downloadPlainTextFile, parseNameSetText, serializeNameSetText } from "../name_set_text.js?v=20260902-v021";
+import { buildNameSetFileName, downloadPlainTextFile, parseNameSetText, serializeNameSetText } from "../name_set_text.js?v=20260902-v021";
 
 const refs = {
   bookInfoTitle: document.getElementById("book-info-title"),
@@ -3371,13 +3371,7 @@ function mergeBookNameEntriesWithPriority(currentEntries, incomingEntries) {
 
 function buildBookNameExportText() {
   const active = state.bookActiveNameSet || "Mặc định";
-  return serializeNameSetText(
-    state.bookNameSets[active] || {},
-    {
-      bookTitle: String((state.book && (state.book.title || state.book.title_raw || state.book.title_display)) || "").trim(),
-      author: String((state.book && (state.book.author || state.book.author_raw || state.book.author_display)) || "").trim(),
-    },
-  );
+  return serializeNameSetText(state.bookNameSets[active] || {});
 }
 
 function parseBookNameEntriesOrThrow(rawText) {
@@ -4654,8 +4648,13 @@ async function init() {
   refs.btnBookNameQuickAdd.addEventListener("click", openBookNameBulkDialog);
   refs.btnBookNameExport.addEventListener("click", () => {
     const active = state.bookActiveNameSet || "Mặc định";
-    const filename = `book_name_set_${active}`.replace(/[^\w\-]+/g, "_");
-    downloadPlainTextFile(buildBookNameExportText(), `${filename}.txt`);
+    const filename = buildNameSetFileName({
+      prefix: "book_name_set",
+      bookTitle: String((state.book && (state.book.title_display || state.book.title_vi || state.book.title || state.book.title_raw)) || "").trim(),
+      author: String((state.book && (state.book.author_display || state.book.author_vi || state.book.author || state.book.author_raw)) || "").trim(),
+      setName: active,
+    });
+    downloadPlainTextFile(buildBookNameExportText(), filename);
   });
   refs.btnBookNameImport.addEventListener("click", () => refs.bookNameImportFile.click());
   refs.bookNameImportFile.addEventListener("change", async () => {

@@ -20,14 +20,8 @@ export function parseNameSetText(raw) {
   };
 }
 
-export function serializeNameSetText(entries, metadata = null) {
+export function serializeNameSetText(entries) {
   const lines = [];
-  const meta = metadata && typeof metadata === "object" ? metadata : {};
-  const bookTitle = String(meta.bookTitle || meta.title || "").replace(/[\r\n]+/g, " ").trim();
-  const author = String(meta.author || "").replace(/[\r\n]+/g, " ").trim();
-  if (bookTitle) lines.push(`# Tên truyện: ${bookTitle}`);
-  if (author) lines.push(`# Tác giả: ${author}`);
-  if (lines.length) lines.push("");
   for (const [rawSource, rawTarget] of Object.entries(entries || {})) {
     const source = String(rawSource || "").trim();
     const target = String(rawTarget || "").trim();
@@ -35,6 +29,25 @@ export function serializeNameSetText(entries, metadata = null) {
     lines.push(`${source}=${target}`);
   }
   return lines.join("\n");
+}
+
+function sanitizeFileNamePart(value, maxLength = 80) {
+  return String(value || "")
+    .replace(/[\u0000-\u001f<>:"/\\|?*]+/g, "_")
+    .replace(/\s+/g, " ")
+    .replace(/[. ]+$/g, "")
+    .trim()
+    .slice(0, Math.max(1, Number(maxLength) || 80));
+}
+
+export function buildNameSetFileName({ prefix = "name_set", bookTitle = "", author = "", setName = "" } = {}) {
+  const parts = [
+    sanitizeFileNamePart(prefix, 32),
+    sanitizeFileNamePart(bookTitle, 80),
+    sanitizeFileNamePart(author, 60),
+    sanitizeFileNamePart(setName, 50),
+  ].filter(Boolean);
+  return `${parts.join(" - ") || "name_set"}.txt`;
 }
 
 export function downloadPlainTextFile(text, fileName) {

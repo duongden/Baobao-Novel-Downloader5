@@ -47,7 +47,7 @@ Reader hiện có thể xem changelog, hướng dẫn và các thông báo dài 
 - Nếu dùng `Name riêng` cho từng truyện, nên quản lý từ đây hoặc ngay trong trang đọc.
 - Nút `Phân tích Name` quét nội dung RAW đã tải và loại phần lớn từ thông thường, xưng hô hoặc mảnh câu; hãy xem ngữ cảnh mẫu trước khi nhập các dòng được chọn.
 - Trong `Gợi ý Name`, nút `EN` dịch cụm Trung hiện tại sang tiếng Anh bằng Google Translate rồi điền vào ô tên đích.
-- Khi xuất bộ Name của một truyện, file có thêm hai dòng ghi chú tên truyện và tác giả. Có thể nhập lại file này như định dạng `ZH=VI` cũ.
+- Khi xuất bộ Name của một truyện, tên file có thêm tên truyện và tác giả để dễ nhận biết. Nội dung bên trong không thêm ghi chú, vẫn chỉ gồm các dòng `ZH=VI` như trước.
 
 ## 6. Đọc truyện
 
