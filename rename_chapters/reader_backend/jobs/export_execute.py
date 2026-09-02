@@ -31,6 +31,7 @@ def execute_export_request(
     resolve_export_metadata: Callable[[dict[str, Any], dict[str, Any] | None], dict[str, str]],
     create_export_file: Callable[..., Path],
     is_book_comic: Callable[[dict[str, Any]], bool],
+    find_book: Callable[[str], dict[str, Any] | None] | None = None,
     progress_callback: Callable[[dict[str, Any]], None] | None = None,
 ) -> tuple[Path, int]:
     chapters = collect_export_chapters(
@@ -42,6 +43,10 @@ def execute_export_request(
         progress_callback=progress_callback,
     )
     chapters = export_runtime.require_exportable_chapters(chapters)
+    if callable(find_book):
+        latest_book = find_book(str(request.get("book_id") or book.get("book_id") or ""))
+        if latest_book:
+            book = latest_book
     export_metadata = resolve_export_metadata(book, dict(request.get("metadata") or {}))
     if callable(progress_callback):
         try:

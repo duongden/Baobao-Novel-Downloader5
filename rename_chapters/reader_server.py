@@ -8867,7 +8867,6 @@ class ReaderService:
             raise ApiError(HTTPStatus.NOT_FOUND, "NOT_FOUND", "Không tìm thấy truyện.")
         fmt_norm = str(fmt or "").strip().lower()
         normalized_options = self._normalize_export_options(book, fmt_norm, options)
-        export_metadata = self._resolve_export_metadata(book, metadata)
         chapters = self._collect_export_chapters(
             book,
             options=normalized_options,
@@ -8880,6 +8879,10 @@ class ReaderService:
                 "EXPORT_EMPTY",
                 "Không có chương phù hợp để xuất với lựa chọn hiện tại.",
             )
+        latest_book = self.storage.find_book(book_id)
+        if latest_book:
+            book = latest_book
+        export_metadata = self._resolve_export_metadata(book, metadata)
         if fmt_norm == "txt":
             if is_book_comic(book):
                 raise ApiError(
@@ -10273,6 +10276,7 @@ class ReaderService:
                     **kwargs,
                 ),
                 is_book_comic=is_book_comic,
+                find_book=self.storage.find_book,
                 progress_callback=on_progress,
             )
 

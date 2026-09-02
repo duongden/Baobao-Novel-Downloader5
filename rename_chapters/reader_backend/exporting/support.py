@@ -117,12 +117,14 @@ def _try_resolve_cover_data_url(candidate: str) -> str:
 
 def _resolve_export_cover_data_url(*, book: dict[str, Any], raw_metadata: dict[str, Any] | None) -> str:
     metadata = dict(raw_metadata or {}) if isinstance(raw_metadata, dict) else {}
+    # Bìa đang lưu trên truyện là nguồn mới nhất, đặc biệt cover_path local do
+    # user upload. Metadata của job có thể đã được tạo từ trước khi bìa đổi.
     for candidate in (
+        book.get("cover_path"),
+        book.get("cover_remote_url"),
         metadata.get("cover_data_url"),
         metadata.get("cover_url"),
         metadata.get("cover_path"),
-        book.get("cover_path"),
-        book.get("cover_remote_url"),
     ):
         resolved = _try_resolve_cover_data_url(str(candidate or ""))
         if resolved:
