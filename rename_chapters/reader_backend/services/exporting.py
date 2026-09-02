@@ -31,6 +31,7 @@ def build_book_export_info(
             translate_mode=translate_mode,
             name_set_override=name_set_override,
             vp_set_override=vp_set_override,
+            book_id=book_id,
         )
 
     chapter_map: dict[str, dict[str, Any]] = {}
@@ -133,7 +134,9 @@ def collect_export_chapters(
             translate_mode=translate_mode,
             name_set_override=active_name_set,
             vp_set_override=active_vp_set,
+            book_id=str(book.get("book_id") or ""),
         )
+    translator = service.translator_for_book(str(book.get("book_id") or ""))
 
     entries: list[dict[str, Any]] = []
     total_chapters = len(chapters)
@@ -196,7 +199,7 @@ def collect_export_chapters(
             chapter,
             book,
             mode="raw",
-            translator=service.translator,
+            translator=translator,
             translate_mode=translate_mode,
             name_set_override=active_name_set,
             vp_set_override=active_vp_set,
@@ -283,7 +286,7 @@ def collect_export_chapters(
             chapter,
             book,
             mode=text_mode,
-            translator=service.translator,
+            translator=translator,
             translate_mode=translate_mode,
             name_set_override=active_name_set,
             vp_set_override=active_vp_set,

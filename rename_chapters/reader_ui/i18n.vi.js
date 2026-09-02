@@ -100,6 +100,8 @@ export const STRINGS = {
   exportOptionChapterTitles: "Hiển thị tên chương",
   exportOptionToc: "Hiển thị trang mục lục",
   exportOptionTranslatedText: "Xuất text dịch",
+  exportTranslationMode: "Nguồn dịch khi xuất",
+  exportTranslationModeHint: "Mặc định theo nguồn dịch riêng của truyện đang đọc. Đổi nguồn sẽ cập nhật trạng thái đã dịch/chưa dịch của từng chương.",
   exportKindComic: "Truyện tranh",
   exportKindZhNovel: "Tiểu thuyết Trung",
   exportKindNovel: "Tiểu thuyết",

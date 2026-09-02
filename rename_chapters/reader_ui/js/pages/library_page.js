@@ -75,6 +75,10 @@ const refs = {
   exportFormatLabel: document.getElementById("export-format-label"),
   exportFormatSelect: document.getElementById("export-format-select"),
   exportOptionsList: document.getElementById("export-options-list"),
+  exportTranslationModeWrap: document.getElementById("export-translation-mode-wrap"),
+  exportTranslationModeLabel: document.getElementById("export-translation-mode-label"),
+  exportTranslationModeSelect: document.getElementById("export-translation-mode-select"),
+  exportTranslationModeHint: document.getElementById("export-translation-mode-hint"),
   exportUseCachedOnly: document.getElementById("export-use-cached-only"),
   exportUseCachedOnlyLabel: document.getElementById("export-use-cached-only-label"),
   exportChaptersTitle: document.getElementById("export-chapters-title"),
@@ -345,6 +349,7 @@ const state = {
   },
   exportBookDetail: null,
   exportFormats: [],
+  exportTranslationRequestSeq: 0,
   libraryRenderToken: 0,
   libraryCardObserver: null,
   libraryHydrateQueue: [],
@@ -370,6 +375,15 @@ const CATEGORY_SECTION_USER_KEY = "user_custom";
 const CATEGORY_SECTION_REMOVED_KEY = "removed_default";
 const CATEGORY_SECTION_USER_ORDER = 1000;
 const CATEGORY_SECTION_REMOVED_ORDER = 1100;
+const EXPORT_TRANSLATION_MODES = [
+  ["server", "translationModeServer"],
+  ["tm_translate_beta", "translationModeTmTranslateBeta"],
+  ["local", "translationModeLocal"],
+  ["dichngay_local", "translationModeDichNgayLocal"],
+  ["hanviet", "translationModeHanviet"],
+  ["vbook_ext", "translationModeVbookExt"],
+  ["google_translate", "translationModeGoogle"],
+];
 
 function localTranslationSettingsSignature(shell) {
   try {
@@ -5868,6 +5882,61 @@ function isExportTranslatedSelected() {
   return Boolean(checkbox && checkbox.checked);
 }
 
+function currentExportTranslationMode() {
+  const selected = String((refs.exportTranslationModeSelect && refs.exportTranslationModeSelect.value) || "").trim();
+  if (selected) return selected;
+  const effective = String(currentExportInfo().translation_mode || "").trim();
+  return effective || getCurrentTranslationMode();
+}
+
+function syncExportTranslationModeVisibility() {
+  if (!refs.exportTranslationModeWrap) return;
+  const supported = Boolean(currentExportInfo().translation_supported);
+  refs.exportTranslationModeWrap.hidden = !(supported && isExportTranslatedSelected());
+}
+
+function renderExportTranslationMode() {
+  const select = refs.exportTranslationModeSelect;
+  if (!select) return;
+  const effectiveMode = String(currentExportInfo().translation_mode || "").trim() || getCurrentTranslationMode();
+  select.innerHTML = "";
+  for (const [value, labelKey] of EXPORT_TRANSLATION_MODES) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = state.shell.t(labelKey);
+    select.appendChild(option);
+  }
+  select.value = EXPORT_TRANSLATION_MODES.some(([value]) => value === effectiveMode)
+    ? effectiveMode
+    : "server";
+  syncExportTranslationModeVisibility();
+}
+
+async function refreshExportTranslationStatus() {
+  if (!state.selectedBookId || !refs.exportTranslationModeSelect) return;
+  const requestSeq = Number(state.exportTranslationRequestSeq || 0) + 1;
+  state.exportTranslationRequestSeq = requestSeq;
+  const selectedMode = currentExportTranslationMode();
+  const previousStart = String((refs.exportRangeStartSelect && refs.exportRangeStartSelect.value) || "").trim();
+  const previousEnd = String((refs.exportRangeEndSelect && refs.exportRangeEndSelect.value) || "").trim();
+  refs.exportTranslationModeSelect.disabled = true;
+  try {
+    const book = await state.shell.api(
+      `/api/library/book/${encodeURIComponent(state.selectedBookId)}?mode=trans&translation_mode=${encodeURIComponent(selectedMode)}`,
+    );
+    if (requestSeq !== state.exportTranslationRequestSeq) return;
+    state.exportBookDetail = book;
+    if (refs.exportRangeStartSelect) refs.exportRangeStartSelect.value = previousStart;
+    if (refs.exportRangeEndSelect) refs.exportRangeEndSelect.value = previousEnd;
+    syncExportRangeOptions();
+    renderExportChapterList(book);
+  } catch (error) {
+    if (requestSeq === state.exportTranslationRequestSeq) state.shell.showToast(getErrorMessage(error));
+  } finally {
+    if (requestSeq === state.exportTranslationRequestSeq) refs.exportTranslationModeSelect.disabled = false;
+  }
+}
+
 function closeExportDialog() {
   if (refs.exportDialog && refs.exportDialog.open) refs.exportDialog.close();
 }
@@ -5964,6 +6033,7 @@ function renderExportOptions() {
       checkbox.dataset.optionKey = String(option.key || "");
       checkbox.addEventListener("change", () => {
         updateExportOptionVisibility();
+        syncExportTranslationModeVisibility();
         renderExportChapterList(state.exportBookDetail);
       });
 
@@ -6105,6 +6175,7 @@ function renderExportDialog(book) {
   }
   renderExportCover(book);
   renderExportOptions();
+  renderExportTranslationMode();
   syncExportRangeOptions();
   renderExportChapterList(book);
 }
@@ -6114,10 +6185,9 @@ async function openExportDialog() {
   closeActions();
   state.shell.showStatus(state.shell.t("statusLoadingExport"));
   try {
-    const translateMode = getCurrentTranslationMode();
     const mode = (typeof state.shell.getTranslationEnabled === "function" ? state.shell.getTranslationEnabled() : true) ? "trans" : "raw";
     const book = await state.shell.api(
-      `/api/library/book/${encodeURIComponent(state.selectedBookId)}?mode=${encodeURIComponent(mode)}&translation_mode=${encodeURIComponent(translateMode)}`,
+      `/api/library/book/${encodeURIComponent(state.selectedBookId)}?mode=${encodeURIComponent(mode)}`,
     );
     renderExportDialog(book);
     if (refs.exportDialog && !refs.exportDialog.open) refs.exportDialog.showModal();
@@ -6181,7 +6251,7 @@ async function submitExportDialog() {
       body: JSON.stringify({
         format: spec.id,
         format_label: String(spec.label || spec.id || "").trim(),
-        translation_mode: getCurrentTranslationMode(),
+        translation_mode: currentExportTranslationMode(),
         use_cached_only: true,
         chapter_ids: chapterIds,
         translation_pending_chapters: pendingTranslation,
@@ -6314,6 +6384,8 @@ async function init() {
   if (refs.exportMetaSummaryLabel) refs.exportMetaSummaryLabel.textContent = state.shell.t("fieldSummary");
   if (refs.exportIncludeCategoriesLabel) refs.exportIncludeCategoriesLabel.textContent = state.shell.t("exportIncludeCategories");
   if (refs.exportFormatLabel) refs.exportFormatLabel.textContent = state.shell.t("exportFormat");
+  if (refs.exportTranslationModeLabel) refs.exportTranslationModeLabel.textContent = state.shell.t("exportTranslationMode");
+  if (refs.exportTranslationModeHint) refs.exportTranslationModeHint.textContent = state.shell.t("exportTranslationModeHint");
   if (refs.exportUseCachedOnlyLabel) refs.exportUseCachedOnlyLabel.textContent = state.shell.t("exportCachedOnly");
   if (refs.exportChaptersTitle) refs.exportChaptersTitle.textContent = state.shell.t("tocTitle");
   if (refs.exportRangeStartLabel) refs.exportRangeStartLabel.textContent = "Từ chương đã tải";
@@ -6613,8 +6685,12 @@ async function init() {
   }
   if (refs.exportFormatSelect) refs.exportFormatSelect.addEventListener("change", () => {
     renderExportOptions();
+    syncExportTranslationModeVisibility();
     syncExportRangeOptions();
     renderExportChapterList(state.exportBookDetail);
+  });
+  if (refs.exportTranslationModeSelect) refs.exportTranslationModeSelect.addEventListener("change", () => {
+    refreshExportTranslationStatus().catch(() => {});
   });
   if (refs.btnOpenGlobalJunk) refs.btnOpenGlobalJunk.addEventListener("click", () => {
     openGlobalJunkDialog().catch(() => {});

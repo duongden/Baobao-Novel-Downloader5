@@ -4941,6 +4941,25 @@ body.fullscreen-reading:not(.fullscreen-ui-visible) .reader-footer {
   color: var(--muted);
 }
 
+.export-translation-mode-field {
+  display: grid;
+  gap: 6px;
+}
+
+.export-translation-mode-field[hidden] {
+  display: none;
+}
+
+.export-translation-mode-field label {
+  display: grid;
+  gap: 6px;
+}
+
+.export-translation-mode-field small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .export-chapter-head {
   display: flex;
   align-items: center;

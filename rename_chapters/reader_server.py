@@ -8713,8 +8713,10 @@ class ReaderService:
         translate_mode: str,
         name_set_override: dict[str, str] | None,
         vp_set_override: dict[str, str] | None,
+        book_id: str | None = None,
     ) -> str:
-        base_sig = self.translator.translation_signature(
+        translator = self.translator_for_book(book_id)
+        base_sig = translator.translation_signature(
             mode=translate_mode,
             name_set_override=name_set_override,
             vp_set_override=vp_set_override,
@@ -10085,7 +10087,7 @@ class ReaderService:
         if not book:
             raise ApiError(HTTPStatus.NOT_FOUND, "NOT_FOUND", "Không tìm thấy truyện.")
         fmt_norm = str(body.get("format") or "txt").strip().lower() or "txt"
-        translate_mode = self.resolve_translate_mode(body.get("translation_mode"))
+        translate_mode = self.resolve_translate_mode_for_book(body.get("translation_mode"), book_id=bid)
         metadata = dict(body.get("metadata") or {}) if isinstance(body.get("metadata"), dict) else {}
         options_raw = dict(body.get("options") or {}) if isinstance(body.get("options"), dict) else {}
         normalized_options = self._normalize_export_options(book, fmt_norm, options_raw)
