@@ -231,6 +231,7 @@ const refs = {
   bookNameSuggestColAction: document.getElementById("book-name-suggest-col-action"),
   bookNameSuggestLeftBody: document.getElementById("book-name-suggest-left-body"),
   bookNameSuggestRightBody: document.getElementById("book-name-suggest-right-body"),
+  btnBookNameSuggestEnglish: document.getElementById("btn-book-name-suggest-english"),
   btnBookNameSuggestGoogleTranslate: document.getElementById("btn-book-name-suggest-google-translate"),
   btnBookNameSuggestGoogleSearch: document.getElementById("btn-book-name-suggest-google-search"),
 
@@ -4076,8 +4077,33 @@ function currentBookNameSuggestSourceText() {
 function syncBookNameSuggestExternalActions() {
   const source = currentBookNameSuggestSourceText();
   const disabled = !source;
+  if (refs.btnBookNameSuggestEnglish) refs.btnBookNameSuggestEnglish.disabled = disabled;
   if (refs.btnBookNameSuggestGoogleTranslate) refs.btnBookNameSuggestGoogleTranslate.disabled = disabled;
   if (refs.btnBookNameSuggestGoogleSearch) refs.btnBookNameSuggestGoogleSearch.disabled = disabled;
+}
+
+async function applyBookEnglishNameSuggestion() {
+  const source = currentBookNameSuggestSourceText();
+  if (!source) return;
+  if (refs.btnBookNameSuggestEnglish) refs.btnBookNameSuggestEnglish.disabled = true;
+  state.shell.showStatus(state.shell.t("statusTranslatingNameEnglish"));
+  try {
+    const data = await state.shell.api("/api/name-suggest/google-translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source_text: source, target_lang: "en" }),
+    });
+    const target = String(data.target_text || "").trim();
+    if (!target) return;
+    refs.bookNameTarget.value = target;
+    if (refs.bookNameSuggestDialog && refs.bookNameSuggestDialog.open) refs.bookNameSuggestDialog.close();
+    refs.bookNameTarget.focus();
+  } catch (error) {
+    state.shell.showToast(error.message || state.shell.t("toastError"));
+  } finally {
+    state.shell.hideStatus();
+    syncBookNameSuggestExternalActions();
+  }
 }
 
 function renderBookNameSuggestRows(items, rightItems = []) {
@@ -4415,6 +4441,7 @@ async function init() {
   refs.bookNameSuggestColTarget.textContent = state.shell.t("nameSuggestColTarget");
   refs.bookNameSuggestColOrigin.textContent = state.shell.t("nameSuggestColOrigin");
   refs.bookNameSuggestColAction.textContent = state.shell.t("nameSuggestColAction");
+  refs.btnBookNameSuggestEnglish.textContent = state.shell.t("nameSuggestEnglish");
   refs.btnBookNameSuggestGoogleTranslate.textContent = state.shell.t("nameSuggestGoogleTranslate");
   refs.btnBookNameSuggestGoogleSearch.textContent = state.shell.t("nameSuggestGoogleSearch");
   if (refs.bookReplaceTitle) refs.bookReplaceTitle.textContent = state.shell.t("replaceEditorTitle");
@@ -4536,6 +4563,11 @@ async function init() {
     importSelectedBookNameFilterRows().catch(() => {});
   });
   refs.bookNameSource.addEventListener("input", syncBookNameSuggestExternalActions);
+  if (refs.btnBookNameSuggestEnglish) {
+    refs.btnBookNameSuggestEnglish.addEventListener("click", () => {
+      applyBookEnglishNameSuggestion().catch(() => {});
+    });
+  }
   if (refs.btnBookNameSuggestGoogleTranslate) {
     refs.btnBookNameSuggestGoogleTranslate.addEventListener("click", () => {
       const source = currentBookNameSuggestSourceText();

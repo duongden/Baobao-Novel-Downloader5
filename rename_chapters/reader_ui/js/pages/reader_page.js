@@ -116,6 +116,7 @@ const refs = {
   nameSuggestColAction: document.getElementById("name-suggest-col-action"),
   nameSuggestLeftBody: document.getElementById("name-suggest-left-body"),
   nameSuggestRightBody: document.getElementById("name-suggest-right-body"),
+  btnNameSuggestEnglish: document.getElementById("btn-name-suggest-english"),
   btnNameSuggestGoogleTranslate: document.getElementById("btn-name-suggest-google-translate"),
   btnNameSuggestGoogleSearch: document.getElementById("btn-name-suggest-google-search"),
 
@@ -5726,8 +5727,38 @@ function currentNameSuggestSourceText() {
 function syncNameSuggestExternalActions() {
   const source = currentNameSuggestSourceText();
   const disabled = !source;
+  if (refs.btnNameSuggestEnglish) refs.btnNameSuggestEnglish.disabled = disabled;
   if (refs.btnNameSuggestGoogleTranslate) refs.btnNameSuggestGoogleTranslate.disabled = disabled;
   if (refs.btnNameSuggestGoogleSearch) refs.btnNameSuggestGoogleSearch.disabled = disabled;
+}
+
+async function applyEnglishNameSuggestion() {
+  const source = currentNameSuggestSourceText();
+  if (!source) return;
+  if (refs.btnNameSuggestEnglish) refs.btnNameSuggestEnglish.disabled = true;
+  state.shell.showStatus(state.shell.t("statusTranslatingNameEnglish"));
+  try {
+    const data = await state.shell.api("/api/name-suggest/google-translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source_text: source, target_lang: "en" }),
+    });
+    const target = String(data.target_text || "").trim();
+    if (!target) return;
+    const usingSelectionDialog = Boolean(refs.selectionNameDialog && refs.selectionNameDialog.open);
+    const targetInput = usingSelectionDialog ? refs.selectionNameTargetInput : refs.nameTargetInput;
+    if (targetInput) {
+      targetInput.value = target;
+      targetInput.focus();
+    }
+    if (refs.nameSuggestDialog && refs.nameSuggestDialog.open) refs.nameSuggestDialog.close();
+    if (!usingSelectionDialog) syncNameEntrySubmitLabel();
+  } catch (error) {
+    state.shell.showToast(error.message || state.shell.t("toastError"));
+  } finally {
+    state.shell.hideStatus();
+    syncNameSuggestExternalActions();
+  }
 }
 
 async function openNameSuggestDialog() {
@@ -7626,6 +7657,7 @@ function bindNameEditor() {
   refs.nameSuggestColTarget.textContent = state.shell.t("nameSuggestColTarget");
   refs.nameSuggestColOrigin.textContent = state.shell.t("nameSuggestColOrigin");
   refs.nameSuggestColAction.textContent = state.shell.t("nameSuggestColAction");
+  if (refs.btnNameSuggestEnglish) refs.btnNameSuggestEnglish.textContent = state.shell.t("nameSuggestEnglish");
   if (refs.btnNameSuggestGoogleTranslate) refs.btnNameSuggestGoogleTranslate.textContent = state.shell.t("nameSuggestGoogleTranslate");
   if (refs.btnNameSuggestGoogleSearch) refs.btnNameSuggestGoogleSearch.textContent = state.shell.t("nameSuggestGoogleSearch");
   if (refs.btnOpenReplaceEditor) refs.btnOpenReplaceEditor.textContent = state.shell.t("openReplaceEditor");
@@ -7821,6 +7853,11 @@ function bindNameEditor() {
       state.shell.showToast(error.message || state.shell.t("toastError"));
     }
   });
+  if (refs.btnNameSuggestEnglish) {
+    refs.btnNameSuggestEnglish.addEventListener("click", () => {
+      applyEnglishNameSuggestion().catch(() => {});
+    });
+  }
   if (refs.btnNameSuggestGoogleTranslate) {
     refs.btnNameSuggestGoogleTranslate.addEventListener("click", () => {
       const source = currentNameSuggestSourceText();

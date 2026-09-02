@@ -171,6 +171,32 @@ def handle_api(handler, method: str, path: str, query: dict[str, list[str]], *, 
         detail.pop("unit_map", None)
         return {"ok": True, **detail}
 
+    if method == "POST" and path == "/api/name-suggest/google-translate":
+        payload = handler._read_json_body()
+        source_text = deps.normalize_newlines(payload.get("source_text") or "").strip()
+        if not source_text:
+            raise api_error(http_status.BAD_REQUEST, "BAD_REQUEST", "Thiếu source_text để dịch tên.")
+        target_lang = str(payload.get("target_lang") or "en").strip().lower()
+        if target_lang != "en":
+            raise api_error(http_status.BAD_REQUEST, "BAD_REQUEST", "Gợi ý Name chỉ hỗ trợ dịch sang tiếng Anh.")
+        try:
+            translated = handler.service.translator._translate_google_text_chunks(
+                [source_text],
+                source_lang="zh",
+                target_lang=target_lang,
+            )
+        except RuntimeError as exc:
+            raise api_error(http_status.BAD_GATEWAY, "TRANSLATE_ERROR", str(exc)) from exc
+        target_text = str(translated[0] if translated else "").strip()
+        if not target_text:
+            raise api_error(http_status.BAD_GATEWAY, "TRANSLATE_ERROR", "Google Translate không trả tên tiếng Anh.")
+        return {
+            "ok": True,
+            "source_text": source_text,
+            "target_text": target_text,
+            "target_lang": target_lang,
+        }
+
     if method == "POST" and path == "/api/name-suggest":
         payload = handler._read_json_body()
         source_text = deps.normalize_newlines(payload.get("source_text") or "").strip()
