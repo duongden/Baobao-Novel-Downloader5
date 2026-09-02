@@ -1,6 +1,6 @@
-import { initShell } from "../site_common.js?v=20260902-v021";
+import { initShell } from "../site_common.js?v=20260902-v022";
 import { buildParagraphNodes, normalizeDisplayTitle, normalizeParagraphDisplayText, normalizeReaderText, splitParagraphBlocks } from "../reader_text.js?v=20260408-readerpara2";
-import { buildNameSetFileName, downloadPlainTextFile, parseNameSetText, serializeNameSetText } from "../name_set_text.js?v=20260902-v021";
+import { buildNameSetFileName, downloadPlainTextFile, parseNameSetText, serializeNameSetText } from "../name_set_text.js?v=20260902-v022";
 import {
   TTS_DEFAULT_SETTINGS,
   buildTtsSegments,

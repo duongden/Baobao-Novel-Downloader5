@@ -1,6 +1,6 @@
-import { t } from "../i18n.vi.js?v=20260902-v021";
+import { t } from "../i18n.vi.js?v=20260902-v022";
 
-const UI_RUNTIME_VERSION = "0.2.1";
+const UI_RUNTIME_VERSION = "0.2.2";
 const SETTINGS_KEY = "reader.ui.settings.v3";
 const THEME_CACHE_KEY = "reader.ui.theme.cache.v1";
 const CUSTOM_THEMES_KEY = "reader.ui.custom.themes.v1";

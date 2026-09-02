@@ -58,12 +58,16 @@ Reader hiện có thể xem changelog, hướng dẫn và các thông báo dài 
 - Nút sửa RAW cho phép đổi cả `Tiêu đề gốc` lẫn nội dung chương. Khi lưu, Reader cập nhật mục lục/tìm kiếm và làm mới bản dịch của chương đó.
 - Khi mở `Cài đặt` trong trang đọc của một bộ, nhóm `Dịch & xử lý (chỉ bộ này)` chỉ lưu cấu hình dịch cho bộ hiện tại.
 - Nếu bộ chưa từng chỉnh riêng, cấu hình dịch sẽ lấy từ global làm mặc định cho lần đầu.
+- Trong `Cài đặt > Đọc & tải trước`, có thể chỉnh ngưỡng phần trăm của chương hiện tại và số chương chữ cần tải/dịch trước. Mặc định là `50%` và `1` chương; đặt số chương là `0` để tắt.
+- Prefetch dùng đúng nguồn dịch đang đọc của riêng truyện. Khi cache đã sẵn sàng, chuyển sang chương kế tiếp sẽ dùng ngay mà không dịch lại.
 
 ## 7. Dịch & xử lý
 
 - Truyện tiếng Trung vẫn có thể dùng các mode quen thuộc như `Local`, `Dịch Ngay local`, `Hán Việt` hoặc `Server`.
 - `TM Translate (beta)` là lựa chọn riêng trong danh sách mode. Chế độ này mô phỏng luồng TM Translate beta khi tách đoạn, giữ ký hiệu và thay Name; nên thử trên một chương trước khi dùng cho cả truyện.
 - Gợi ý/chỉnh Name trong mode beta dùng dữ liệu Hán Việt local đi kèm Reader, nên không cần chọn thêm file từ bên ngoài.
+- Reader giữ riêng cache nội dung chương cho Server và TM Translate. Đổi qua lại sẽ dùng cache mới nhất của đúng module; chỉ dịch lại khi RAW hoặc Name làm chữ ký cache thay đổi.
+- Tên truyện, mục lục và text giao diện được phép dùng chung cache hiển thị Server/TM để tránh tốn lượt dịch không cần thiết.
 - Với truyện không phải tiếng Trung, nên cài vBook Translate extension rồi chọn mode `vBook extension` trong `Dịch & xử lý`.
 - Repo vBook Translate mặc định đã được thêm sẵn: `https://raw.githubusercontent.com/Darkrai9x/vbook-extensions/refs/heads/master/translate.json`.
 - Extension loại translate không dùng để khám phá truyện nên sẽ không hiện trong trang `Khám phá`; hãy chọn nó trong `Dịch & xử lý`.
@@ -127,6 +131,8 @@ Reader hiện có thể xem changelog, hướng dẫn và các thông báo dài 
 
 ## 11. Xuất file HTML
 
+- Khi bật `Xuất text dịch`, chọn `Nguồn dịch khi xuất` ngay trong dialog. Mặc định là nguồn dịch riêng mà truyện đang dùng, không ép theo cấu hình global.
+- Sau khi đổi nguồn, xem trạng thái từng chương: `Đã có cache dịch` nghĩa là dùng ngay; `Sẽ dịch bổ sung` nghĩa là job export sẽ dịch bằng nguồn vừa chọn.
 - Với tuỳ chọn `Gộp thành 1 file`, HTML chỉ nạp vài chương quanh vị trí đang xem để giảm lag.
 - Mục lục, giới thiệu và ảnh bìa vẫn có sẵn ngay khi mở file.
 - Reader luôn lấy ảnh bìa mới nhất đang dùng lúc bắt đầu đóng gói, kể cả bìa vừa được tải lên từ trang thông tin truyện.

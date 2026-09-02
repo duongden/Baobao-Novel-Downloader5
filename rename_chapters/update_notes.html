@@ -1,7 +1,7 @@
 <h1>Bản cập nhật 0.3.3.6</h1>
 
 <p>
-  Novel Studio 0.3.3.6 đi kèm Reader Server 0.2.1 và Reader UI 0.2.1.
+  Novel Studio 0.3.3.6 đi kèm Reader Server 0.2.2 và Reader UI 0.2.2.
   Bản này bổ sung theo dõi thay đổi chương Fanqie, hoàn thiện Auto Update/liên kết bổ sung,
   thêm luồng dịch TM Translate beta và nhiều cải tiến cho chỉnh sửa, Name và xuất truyện trong Reader.
 </p>
@@ -15,8 +15,13 @@
   <li>Màu tùy chỉnh cho <b>Highlight truyện có n chương</b> được kiểm tra để không trùng với các màu trạng thái mặc định.</li>
 </ul>
 
-<h2>Reader Server/UI 0.2.1</h2>
+<h2>Reader Server/UI 0.2.2</h2>
 <ul>
+  <li>Khi bật <b>Xuất text dịch</b>, dialog xuất truyện cho chọn riêng nguồn dịch và mặc định theo nguồn đang đọc của chính truyện đó.</li>
+  <li>Trạng thái đã dịch/chưa dịch của từng chương trong dialog xuất được cập nhật theo nguồn vừa chọn.</li>
+  <li>Cache nội dung chương của Server và TM Translate được giữ đồng thời theo RAW/Name hiện tại; chuyển qua lại dùng ngay đúng cache của nguồn đang chọn, không dịch lại.</li>
+  <li>Tên truyện, mục lục và các text giao diện có thể dùng lại cache Server khi chuyển sang TM Translate, tránh dịch lặp không cần thiết.</li>
+  <li>Truyện chữ tự tải và dịch trước chương kế tiếp khi đạt ngưỡng đọc. Mặc định là 50% và 1 chương; có thể chỉnh ngưỡng, số chương hoặc tắt trong cài đặt toàn cục.</li>
   <li>Có thêm chế độ <b>TM Translate (beta)</b> riêng, dùng luồng tách đoạn, giữ ký hiệu và thay Name tương thích với TM Translate; phần gợi ý/chỉnh Name dùng dữ liệu Hán Việt local đi kèm.</li>
   <li>Trình sửa RAW cho phép sửa cả tiêu đề gốc của chương; mục lục và cache tìm kiếm được cập nhật theo.</li>
   <li>Tên file khi xuất bộ Name có thêm tên truyện và tác giả; nội dung bên trong vẫn giữ nguyên định dạng <code>ZH=VI</code>.</li>

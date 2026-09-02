@@ -1,4 +1,23 @@
-# Changelog Reader 0.2.1
+# Changelog Reader 0.2.2
+
+> [!NEW] Chọn nguồn dịch khi xuất truyện
+> - Khi bật `Xuất text dịch`, có thể chọn riêng Server, TM Translate hoặc nguồn dịch khác ngay trong dialog xuất.
+> - Nguồn mặc định lấy theo cấu hình đang đọc của riêng truyện; nếu truyện đang dùng TM Translate dù global là Server thì dialog vẫn chọn TM Translate.
+> - Danh sách chương cập nhật lại trạng thái `Đã có cache dịch`/`Sẽ dịch bổ sung` theo đúng nguồn vừa chọn.
+
+> [!FIX] Giữ cache khi chuyển Server và TM Translate
+> - Mỗi chương giữ riêng cache mới nhất theo nguồn dịch, RAW và chữ ký Name. Nếu cache của nguồn đang chọn còn hợp lệ, Reader dùng ngay và không dịch lại.
+> - Chuyển Server → TM Translate → Server không còn làm Reader quên cache Server cũ; cache TM cũng được giữ nguyên theo cách tương tự.
+> - Tên truyện, mục lục và text giao diện có thể dùng lại cache Server khi chuyển sang TM Translate để tránh dịch lặp; nội dung chương vẫn luôn dùng đúng cache của module đang chọn.
+
+> [!NEW] Tải và dịch trước chương chữ
+> - Khi đọc tới 50% chương hiện tại, Reader mặc định tải và dịch trước 1 chương kế tiếp bằng đúng nguồn dịch của truyện.
+> - Có thể chỉnh phần trăm kích hoạt và số chương tải trước trong `Cài đặt > Đọc & tải trước`; đặt số chương là `0` để tắt.
+> - Khi chuyển chương, Reader dùng thẳng dữ liệu đã tải trước nên không gửi lại request hoặc dịch lại nếu cache vẫn hợp lệ.
+
+---
+
+## Bản 0.2.1
 
 > [!NEW] TM Translate beta
 > - Trong `Cài đặt > Dịch & xử lý`, có thể chọn riêng `TM Translate (beta)`.
